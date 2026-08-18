@@ -30,7 +30,7 @@ The scenario DCF stays an explicit point-generator per named scenario; the MC ru
 |---|---------|
 | P1 | **Determinism and auditability over cleverness.** Same input + same seed → same output. Every output traceable to a specific assumption.  ⚠️ This may not be possible for the llm phase ⚠️ |
 | P2 | **The LLM reclassification stage is the differentiator.** Reading issuer iXBRL and mapping it to a canonical schema is where the project's value — and its main technical risk — lives. |
-| P3 | **The LLM reclassification stage is the foundation — built first, proven first, and mandatory.** Its reliability cannot yet be verified, so it is engineered and validated against a labeled set of real US-firm filings **before any DCF or Monte Carlo work** (Phase 1, §11). If it cannot reach the accuracy bar, the project **halts** and the premise is revisited. There is **no deterministic or rule-based fallback reclassification path** in v1 (D8). |
+| P3 | **The LLM reclassification stage is the foundation — built first, proven first, and mandatory.** Its reliability cannot yet be verified, so it is engineered and validated against a labeled set of real US-firm filings **before any DCF or Monte Carlo work** (Phase 1, §12). If it cannot reach the accuracy bar, the project **halts** and the premise is revisited. There is **no deterministic or rule-based fallback reclassification path** in v1 (D8). |
 | P4 | **Research tool, not advisor.** Outputs are labeled "research input"; never investment-advice framing. |
 | P5 | **Small model, constrained task.** Runs on a mid-size local model via Ollama (D14) — self-hosted, reproducible, cheap. |
 
@@ -71,7 +71,7 @@ The scenario DCF stays an explicit point-generator per named scenario; the MC ru
 
 ## 5. LLM Reclassification Stage — Core, Proven First
 
-**The most technically demanding part of the project — and the first thing built and validated** (Phase 1, §11; P3/D8).
+**The most technically demanding part of the project — and the first thing built and validated** (Phase 1, §12; P3/D8).
 
 ### 5.1 Model choice (decided)
 
@@ -98,16 +98,179 @@ Per-statement iXBRL blocks, the frozen canonical schema (D11), and the schema de
 
 ### 5.4 Identity / reconciliation checks (the permanent fixture of the project, D24)
 
-Every statement in the golden + holdout set must satisfy:
+Every statement in the golden + holdout set — and every reclassified statement on every run — must satisfy the **12 identity / reconciliation checks of §6.7**, including:
 
 - Σ (classified items) = total revenue — within tolerance `tol_rev`
 - Σ (classified items) + `Other` = total as reported — within `tol_total`
 - No classified item appears twice
 - Every non-canonical item lands in `Other` (D23)
+- plus the rest of the §6.7 list: the profit-ladder identities, the asset-side subtotals, the balance-sheet identity (total assets = total liabilities + equity), the CFS cash roll-up, and the **Δcash (CFS) = Δcash (BS) headline reconciliation**
 
 Tolerance bands are fixed in **Phase 0 (0.5)**; failures on a golden fixture are hard rejects (D9), not warnings.
 
-## 6. Data Ingestion — EDGAR, US Issuers
+## 6. Canonical Schema (frozen — D11)
+
+The reclassification stage (§5) maps every issuer's iXBRL statement **onto exactly this structure**. It is the contract that Phase 0 freezes (0.3): the LLM stage, the DCF kernel (§8) and the MC layer (§9) all read the same keys. Non-canonical items map into the `Other` line of the relevant block (D23) — never dropped, never new keys (D9). A line type of **subtotal** is a computed sum of its block's lines; **computed** values (§6.8) are derived, never reclassified.
+
+**Label history (2026-08-18, accepted):** `Net interest expense` (was "Interest balance"); `Other non-operating income/(expense)` (was "Non operating balance"). The Liabilities & Equity block below is the canonical label set as specified 2026-08-18 (`ST debt`, `A / P`, `Lease obligations`, `Non controlling interest` — US-labeling kept verbatim).
+
+### 6.1 Income statement
+
+| Line | Type | Notes |
+|---|---|---|
+| Revenue | line | core field — hard-reject rules (D9) |
+| Cost of revenue (incl. D&A) | line | — |
+| Cost of revenue (excl. D&A) | line | — |
+| Depreciation & amortization | line | feeds EBITDA (§6.8), CFO add-back, capex cross-check |
+| Other | line | cost-of-revenue family |
+| Gross profit | subtotal | = Revenue − Cost of revenue (incl. D&A) − Other (cor) (§6.7) |
+| R&D | line | — |
+| SG&A | line | — |
+| Other | line | operating-expense family |
+| EBIT | subtotal | = Gross profit − R&D − SG&A − Other (opex) |
+| **Net interest expense** | line | *label fix 2026-08-18* (was "Interest balance") |
+| **Other non-operating income/(expense)** | line | *label fix 2026-08-18* (was "Non operating balance") |
+| Other | line | non-operating family |
+| EBT | subtotal | = EBIT ± non-operating block |
+| Income tax | line | — |
+| Other items after tax | line | — |
+| Net consolidated profit | line | — |
+| Minority interest | line | — |
+| Net profit (attributable) | line | core field (D9) |
+| Basic shares outstanding | line | — |
+| Diluted shares outstanding | line | core (D25) |
+| Basic EPS | line | reported line; cross-checked against §6.8 when the issuer reports it |
+| Diluted EPS | line | reported line; cross-checked against §6.8 when the issuer reports it |
+
+### 6.2 Balance sheet — Current assets
+
+| Line | Type | Notes |
+|---|---|---|
+| Cash investment | line | — |
+| Cash & equivalents | line | core asset family |
+| ST investments | line | — |
+| Trading assets | line | — |
+| A / R | line | accounts receivable (US label kept) |
+| Inventory — Raw materials | line | — |
+| Inventory — Work in progress | line | — |
+| Inventory — Finished goods | line | — |
+| Inventory — Other | line | — |
+| Current assets (total) | subtotal | — |
+
+### 6.3 Balance sheet — Non-current assets
+
+| Line | Type | Notes |
+|---|---|---|
+| Net PP&E | line | — |
+| Gross PP&E | line | — |
+| Accumulated depreciation | line | — |
+| Goodwill | line | — |
+| Intangible assets | line | — |
+| Other | line | — |
+| Non-current assets (total) | subtotal | — |
+| **Total assets** | subtotal | = current + non-current (§6.7) |
+
+### 6.4 Balance sheet — Liabilities & Equity
+
+| Block | Line | Type | Notes |
+|---|---|---|---|
+| Current liabilities | ST debt | line | interest-bearing (current portion) |
+| Current liabilities | A / P | line | US label kept |
+| Current liabilities | Dividends payable | line | — |
+| Current liabilities | Tax payable | line | — |
+| Current liabilities | Accrued liabilities | line | — |
+| Current liabilities | Other | line | — |
+| Current liabilities | Current liabilities (total) | subtotal | — |
+| Non-current liabilities | LT debt | line | interest-bearing |
+| Non-current liabilities | Bonds | line | interest-bearing |
+| Non-current liabilities | Deferred liabilities | line | — |
+| Non-current liabilities | Lease obligations | line | ASC 842 recognized lease liabilities (US issuers, D20) |
+| Non-current liabilities | Other | line | — |
+| Non-current liabilities | Non-current liabilities (total) | subtotal | — |
+| Equity | Share capital | line | — |
+| Equity | Reserves | line | — |
+| Equity | Retained earnings | line | — |
+| Equity | Non controlling interest | line | *label fix 2026-08-18*; equity-side counterpart of the IS "Minority interest" line |
+| Equity | Other | line | — |
+| Equity | Equity (total) | subtotal | — |
+| — | **Interest-bearing debt (total)** | computed | = ST debt + LT debt + Bonds (§6.7) — the *stock* level the CFF deltas alone cannot supply; feeds net debt, WACC D/E, D4 debt ≤ assets + equity |
+
+**Balance-sheet identity (gate):** Total assets = Current liabilities (total) + Non-current liabilities (total) + Equity (total) (with NCI inside equity, per the block above).
+
+### 6.5 Cash-flow statement
+
+| Block | Line | Type | Notes |
+|---|---|---|---|
+| CFO | Net profit (attributable) | line | starting point, per issuer |
+| CFO | Depreciation & amortization | line | add-back |
+| CFO | ΔWC — A / P | line | working-capital components |
+| CFO | ΔWC — A / R | line | — |
+| CFO | ΔWC — Tax payable | line | — |
+| CFO | ΔWC — Inventories | line | — |
+| CFO | ΔWC — Other | line | — |
+| CFO | Other | line | — |
+| CFO | **CFO (total)** | subtotal | — |
+| CFI | CapEx | line | — |
+| CFI | Purchase of investments | line | — |
+| CFI | Maturities of investments | line | — |
+| CFI | Other | line | — |
+| CFI | **CFI (total)** | subtotal | — |
+| CFF | Dividends | line | — |
+| CFF | Stock issuance | line | split from "Stock issuance / buyback" (label fix 2026-08-18) |
+| CFF | Stock buyback | line | — |
+| CFF | Debt issuance | line | — |
+| CFF | Debt repayment | line | — |
+| CFF | Other | line | — |
+| CFF | **CFF (total)** | subtotal | — |
+| — | Net cash | subtotal | = CFO + CFI + CFF |
+
+### 6.6 Cash reconciliation (checksum block)
+
+| Line | Type | Notes |
+|---|---|---|
+| ForEx effects | line | FX impact on cash |
+| Δcash from cash-flow statement | computed | = net cash + ForEx effects |
+| Δcash from balance sheet | computed | = (cash + ST investments) end of period − prior period |
+
+**Reconciliation identity (the permanent fixture, D24/§5.4):** Δcash (CFS) = Δcash (BS) within tolerance.
+
+### 6.7 Checksum identities (Phase 1 go/no-go gate, D24)
+
+Deterministic checks run on the LLM's reclassified output **on every statement, every run** — the LLM is never trusted, it is arithmetic-checked. Tolerances fixed in Phase 0 (0.5); failure on a golden fixture is a hard reject (D9).
+
+| # | Identity |
+|---|---|
+| 1 | Cost of revenue (incl. D&A) = Cost of revenue (excl. D&A) + D&A |
+| 2 | Gross profit = Revenue − Cost of revenue (incl. D&A) − Other (cor) |
+| 3 | EBIT = Gross profit − R&D − SG&A − Other (opex) |
+| 4 | EBT = EBIT + Net interest expense + Other non-operating income/(expense) + Other (non-op) |
+| 5 | Net consolidated profit = EBT − Income tax + Other items after tax |
+| 6 | Net profit (attributable) = Net consolidated profit − Minority interest |
+| 7 | Net PP&E ≈ Gross PP&E − Accumulated depreciation (tolerance) |
+| 8 | Total assets = Current assets (total) + Non-current assets (total) |
+| 9 | Total assets = Current liabilities (total) + Non-current liabilities (total) + Equity (total) |
+| 10 | Net cash = CFO (total) + CFI (total) + CFF (total) |
+| 11 | **Δcash (CFS) = Δcash (BS)** (tolerance) — the headline reconciliation |
+| 12 | Every `Other` line that receives ≥ 1 raw key carries mapping provenance (D12); an unexplained non-zero `Other` is a gate failure |
+
+### 6.8 Computed values (derived — never reclassification targets)
+
+Derived from reclassified lines; each carries `derived_from` + `rule_version` (D12). **Not** valid `canonical_map` keys (D9): if an issuer *reports* one as a line (e.g. an EBITDA XBRL extension), it is mapped into the relevant `Other` line and cross-checked here — not accepted into itself.
+
+| Value | Formula | Consumer |
+|---|---|---|
+| EBITDA | EBIT + D&A | diagnostic / ratios — never a direct DCF input |
+| Effective tax rate | Income tax ÷ EBT (where EBT > 0) | `t` in FCF = EBIT·(1−t) + D&A − ΔWC − CapEx (§8) |
+| Total interest-bearing debt | ST debt + LT debt + Bonds (§6.4) | net debt, WACC D/E, D4 constraint |
+| Net debt | Total interest-bearing debt − (Cash & equivalents + Cash investments + ST investments) | sanity check, bridging |
+| D/E, E/D, D/V, E/V | from total interest-bearing debt + Equity (total) | WACC weights (§8) |
+| Basic / Diluted EPS | Net profit (attributable) ÷ basic / diluted shares | cross-check vs reported EPS lines |
+
+### 6.9 Freeze & change policy
+
+Frozen at end of Phase 0 (D11): additive-only after; every computed field carries `derived_from` + `rule_version` (D12). The prompt, the golden set, and all tests are written against **this exact structure** (§5, Phase 0.3/0.4).
+
+## 7. Data Ingestion — EDGAR, US Issuers
 
 - **Source:** SEC EDGAR via iXBRL — US issuers only (D20).
 - **Depth:** 10 fiscal years where available; otherwise use available history down to a **5-year hard floor** (D21). Fewer → hard reject (insufficient history).
@@ -117,7 +280,7 @@ Tolerance bands are fixed in **Phase 0 (0.5)**; failures on a golden fixture are
 - **Exclusions:** banks, insurers, financials → hard reject (D9 premise).
 - **Storage:** flat JSON files, no database (D16): `data/{ticker}/fiscal-{YYYY}.json`; re-fetch is idempotent, provenance recorded (D12).
 
-## 7. DCF Mechanics
+## 8. DCF Mechanics
 
 Two-stage: explicit forecast period (5 years typical) + terminal.
 
@@ -125,12 +288,12 @@ Two-stage: explicit forecast period (5 years typical) + terminal.
 - **FCF = EBIT·(1−t) + D&A − ΔWC − CapEx**
 - **WACC = E/(E+D)·r_e + D/(E+D)·r_d·(1−t)**; `r_e = r_f + β·ERP`
   - `r_f` = 4.25% default, overridable; `ERP` = 5.5% base (5.0–6.0%), overridable
-  - `β` = industry-prior blend (heuristic, §9); ticker's own β when 10y history exists (D21)
+  - `β` = industry-prior blend (heuristic, §10); ticker's own β when 10y history exists (D21)
   - `t` = tax rate from statements if available, else a sourced default
 - **Shares:** diluted outstanding, as reported (D25).
 - **Terminal growth:** hard-reject if `g_terminal ≥ WACC` (D9/D1).
 
-## 8. Monte Carlo Mechanics
+## 9. Monte Carlo Mechanics
 
 Per scenario:
 
@@ -144,7 +307,7 @@ Per scenario:
 
 **Scenario breakdown:** median, p10, p90, P(FV > price), top-3 driver contributions via a rank-1 finite-difference sensitivity sweep (not full Sobol), rejection stats.
 
-## 9. Assumption Sourcing
+## 10. Assumption Sourcing
 
 Every parameter carries a full provenance record (D7): `value`, `lo`, `hi`, `source`, `confidence` (0–1), `seed`, `model`.
 
@@ -153,7 +316,7 @@ Every parameter carries a full provenance record (D7): `value`, `lo`, `hi`, `sou
 - **`llm`** — proposed by the reclassification stage where a relevant estimate can be extracted. Confidence = LLM confidence blended with reconciliation pass rate (D24).
 - **`heuristic`** — a **small curated set of industry-prior constants** (e.g. "software β ≈ 1.2"), explicitly labeled heuristics, never silent defaults.
 
-## 10. Output Contract & CLI (v1)
+## 11. Output Contract & CLI (v1)
 
 CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [--scenario base|optimistic|pessimistic] [--seed N] [--json]`, `report <run_id>`.
 
@@ -179,7 +342,7 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 }
 ```
 
-## 11. Phased Build Plan
+## 12. Phased Build Plan
 
 **Decisions already taken (do not re-litigate, §4):** DCF + Gordon (D1); distribution (D2); MC with 10,000 correlated draws via hardcoded constants (D3/D6/D26/D27); parameter hierarchy with hard rejects (D4/D9); determinism & auditability (P1/D7/D17); **LLM reclassification as the core, built first, proven first, mandatory, no fallback (P3/D8)**; US issuers only (D20); 10y / 5y-min history (D21); restated figures (D22); non-canonical → Other (D23); LLM validation against a manually reclassified golden set (D24); diluted shares (D25); fiscal-year / stub policy (D28); scenario-realism filter (D29); **flat files, no DB (D16)**; **local Ollama only, model-agnostic (D14)**; **CLI only (D15)**.
 
@@ -188,9 +351,9 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 **Scope.**
 - 0.1 Repo scaffolding: Python 3.12 (`uv` or `pip`), CLI entry (D15), JSON I/O, seed plumbing (D17), config.
 - 0.2 CI: `ruff`, `mypy --strict`, one happy-path test.
-- 0.3 **Freeze the canonical schema (D11)** — ~15–20 fields: revenue, cost of revenue, gross profit, operating income, EBIT, EBITDA, net income, tax rate, D&A, capex, ΔWC, net debt, shareholders' equity, diluted share count (D25), plus `derived_from` + `rule_version` on every computed field (D12). Write it in code + a machine-readable JSON schema. **This is the contract the LLM stage, the DCF, and the MC layer all build against.**
+- 0.3 **Freeze the canonical schema (D11)** — the full §6 structure: income statement, balance sheet (current assets / non-current assets / liabilities & equity), cash-flow statement (CFO / CFI / CFF), cash reconciliation block, the §6.7 checksum identities, and the §6.8 computed values, each with `derived_from` + `rule_version` on every computed field (D12). Write it in code + a machine-readable JSON schema. **This is the contract the LLM stage, the DCF, and the MC layer all build against.**
 - 0.4 **Golden fixture set:** 5–10 real US-firm statements hand-reclassified into the frozen schema, plus a 10-statement **holdout** (Phase 1) — this is the **manually reclassified set the LLM is validated against (D24)** and the permanent reconciliation fixture (D9).
-- 0.5 **Identity-check tolerances** for the three revenue/total/equity checks (§5.4).
+- 0.5 **Identity-check tolerances** for the §6.7 checksum identity set (§5.4).
 - 0.6 Pick the 10 tickers the pipeline will be built against (≥ 3 industries, US issuers, no financials) — **frozen; reused in Phase 5.**
 
 **Gate (blocking):** 0.1 + 0.2 green in CI; 0.3 schema is code + JSON with `derived_from` on every computed field; 0.4 golden set hand-checked; 0.5 tolerances committed to config; 0.6 ticker list committed as a JSON file.
@@ -202,7 +365,7 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 **Scope.**
 - 1.1 Prompt + model-agnostic client (D14) against Ollama (qwen3:8b class default).
 - 1.2 JSON-output enforcement + schema validation (frozen, D11) + hallucination gate (D9).
-- 1.3 Reconciliation harness (§5.4; D24) — golden set **and** holdout.
+- 1.3 Reconciliation harness — **all §6.7 checksum identities on the golden set and holdout** (D24), plus the §5.4 field-level checks.
 - 1.4 Confidence-band policy from §5.3 implemented (`<0.3` core-field reject; `0.3–0.7` flagged; `≥0.7` clean).
 - 1.5 **Non-canonical → `Other` bucket (D23)** — first-class in the schema, visible in outputs.
 
@@ -210,24 +373,24 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 - ≥ 90% of canonical fields correctly mapped
 - 0 hallucinated fields (D9)
 - ≥ 85% of fields with confidence ≥ 0.7 (0.3–0.7 band tolerated but flagged)
-- All three §5.4 identity checks pass within tolerance on every statement
+- All of the §6.7 checksum identities (12 checks) pass within tolerance on every statement
 
 **Failure mode:** **stop.** Record the miss pattern in the phase log. Re-prompt / re-model (the model-agnostic client, D14, makes this a one-line swap). Iterate on **the prompt, not the frozen schema.** Only a pass unblocks Phase 2.
 
 ### Phase 2 — Data Ingestion (real statements)
 
-**Scope.** EDGAR/iXBRL pull (D20). 10y / 5y-min depth (D21). Restated-vs-originally-reported handling (D22). Stub exclusion / last-completed-fiscal-year selection (D28). Bank/insurer/financial exclusion (D9). XBRL extension-tag normalization (§6).
+**Scope.** EDGAR/iXBRL pull (D20). 10y / 5y-min depth (D21). Restated-vs-originally-reported handling (D22). Stub exclusion / last-completed-fiscal-year selection (D28). Bank/insurer/financial exclusion (D9). XBRL extension-tag normalization (§7).
 
 **Gate (blocking):** for the 10 tickers (0.6):
 - All 10 pull and land in flat JSON (D16)
 - 5y-min depth fires on a deliberately-short-history ticker
 - A stub period (e.g. a 2-quarter fiscal year) is correctly dropped (D28)
-- Restated figures are used where they exist (§6)
+- Restated figures are used where they exist (§7)
 - Extension-heavy statements normalize without error
 
 ### Phase 3 — Estimation & DCF (math kernel)
 
-**Scope.** Parameter hierarchy (D4/D9). Scenario presets (D19) + JSON override (D10). WACC/β per §7 (`r_f` 4.25%, ERP 5.5% base, β from industry priors + own β when 10y history exists). Two-stage FV per D1. Provenance records (D7).
+**Scope.** Parameter hierarchy (D4/D9). Scenario presets (D19) + JSON override (D10). WACC/β per §8 (weights **D/E, D/V from §6.8** — interest-bearing debt from the §6.4 block — with `r_f` 4.25%, ERP 5.5% base, β from industry priors + own β when 10y history exists). Two-stage FV per D1. Provenance records (D7).
 
 **Gate (blocking):** for the 10 tickers:
 - Base scenario produces a full D10-compliant output
@@ -237,10 +400,10 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 
 ### Phase 4 — Monte Carlo & Distribution (the payoff)
 
-**Scope.** Cholesky sampling of the hardcoded correlation matrix (D26). N = 10,000 per scenario (D27), vectorized (D13). Reject-and-redraw rules with **visible stats** (D6). Scenario breakdown (top-3 drivers via rank-1 finite-difference sweep, §8).
+**Scope.** Cholesky sampling of the hardcoded correlation matrix (D26). N = 10,000 per scenario (D27), vectorized (D13). Reject-and-redraw rules with **visible stats** (D6). Scenario breakdown (top-3 drivers via rank-1 finite-difference sweep, §9).
 
 **Gate (blocking):**
-- 10 tickers × 3 scenarios all produce the full §10 output contract
+- 10 tickers × 3 scenarios all produce the full §11 output contract
 - `rejection_stats` present and non-trivial on every run, including **realism-filter counts (D29)**
 - A planted contradictory draw (margin ↓ + capex ↑ in same year) is verified to be **discarded, not evaluated**
 - Top-3 driver output sane (no negative "contributions" to FV growth)
@@ -259,11 +422,11 @@ CLI subcommands (D15): `parse <ticker>` (fetch + canonicalize), `run <ticker> [-
 
 ### Phase 6 — Hardening & v1 release
 
-**Scope.** Full §10 validation on the 10-ticker set in CI. `reproduce.sh` + `requirements.txt` + pinned versions. README + a worked example (APL or equivalent). Determinism CI job (same seed twice → identical JSON). Lint/type coverage 100%. `v1.0.0` tag.
+**Scope.** Full §11 validation on the 10-ticker set in CI. `reproduce.sh` + `requirements.txt` + pinned versions. README + a worked example (APL or equivalent). Determinism CI job (same seed twice → identical JSON). Lint/type coverage 100%. `v1.0.0` tag.
 
 **Exit criteria (blocking):**
 1. All of Phases 1–5 gates green
-2. v1 acceptance list (§4) checks off item-by-item
+2. v1 acceptance list (§14) checks off item-by-item
 3. A single `reproduce.sh` takes a user from `git clone` to a full distribution output on one ticker in < 10 minutes
 4. License (Apache 2.0, D18) present; `provenance` model documented; US-scope restriction (D20) stated in the README and the CLI `--help`
 
@@ -279,7 +442,7 @@ Open items closed: <list>
 Notes: <short>
 ```
 
-## 12. Open Questions (each with a default / decided status)
+## 13. Open Questions (each with a default / decided status)
 
 | # | Question | Default / Leaning | Settles in |
 |---|----------|------------------|------------|
@@ -306,22 +469,23 @@ Notes: <short>
 | O21 | **Interface (D15 closed):** CLI only in v1; no web UI, no API server. | — | — |
 | O22 | **US scope (D20 closed):** US issuers only, SEC EDGAR. | — | — |
 | O23 | **Fiscal-year policy (D28 closed):** ignore stubs; value the last completed fiscal year. | — | — |
+| O24 | **SBC treatment (open — flagged 2026-08-18):** US tech issuers carry heavy stock-based comp, which v1 keeps *inside* SGA (i.e. SBC reduces operating income like any other expense). Alternative: add SBC back as a non-cash item (like D&A). | **Default: keep SBC in operating expenses** (SBC is a real economic cost); treat add-back as optional, documented, per-scenario. | Phase 3 gate |
 
 **Resolved by D-decision (not open):** O2, O4, O9, O15–O23 — see the "Closed" rows above or the decisions list in §4.
 
-## 13. v1 Acceptance Checklist (exit criteria for the whole project)
+## 14. v1 Acceptance Checklist (exit criteria for the whole project)
 
 1. The **mandatory** LLM reclassification stage meets the Phase 1 gate (≥90% field accuracy, 0 hallucinated fields, ≥85% confidence ≥ 0.7) on the manually reclassified golden set (D24); **no fallback reclassification path exists in the codebase** (D8).
 2. US issuers only: non-US ticker → clean hard rejection (D20).
 3. 10 tickers across ≥ 3 industries, all with 5y+ of statements (10y where available, D21), stubs excluded (D28).
-4. Each of those 10 tickers, in each of the 3 scenarios, produces the full §10 JSON contract including `rejection_stats` (parametric + **realism-filter, D29**) and `provenance`.
+4. Each of those 10 tickers, in each of the 3 scenarios, produces the full §11 JSON contract including `rejection_stats` (parametric + **realism-filter, D29**) and `provenance`.
 5. Determinism: same input + same seed → identical output across two runs (D17).
 6. Backtest (O1) produced a calibration table for the 10 tickers — the pipeline ships with it (Phase 5).
 7. A single `reproduce.sh` script takes a user from a clean checkout to a full distribution output on one ticker in < 10 minutes.
 8. License (Apache 2.0, D18); `provenance` model documented (D7); US-scope restriction stated in README and CLI `--help` (D20).
 9. **No database in the tree (D16); no cloud LLM dependency (D14); no web UI (D15)** — flat files, local Ollama, CLI only.
 
-## 14. Out of Scope (explicit — v1)
+## 15. Out of Scope (explicit — v1)
 
 - Relative-valuation / comps modules
 - M&A / LBO modeling
@@ -332,17 +496,17 @@ Notes: <short>
 - **Cloud LLM providers — v1 is local Ollama only, model-agnostic (D14)**
 - **Web UI or API server — v1 is CLI only (D15)**
 
-## 15. Risks & Mitigations
+## 16. Risks & Mitigations
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
 | LLM mis-maps a core field, DCF is wrong, user trusts the output | **High** | P3/D8: proven first (Phase 1). D9 hard-reject on low-confidence core fields + reconciliation checks (§5.4) on every run. Provenance (D7) makes any mis-map visible. |
 | LLM cannot reach the accuracy bar on real iXBRL | **High** | Phase 1 is a hard go/no-go gate; **the project stops and the premise is revisited** — no time lost on downstream work (P3/D8). |
 | Hallucinated schema keys (D9) | High | Hard-reject rule; §5.4 reconciliation catches any key not in the frozen schema (D11) before a DCF draw. |
-| Issuer-specific XBRL extensions break ingestion | Medium | Phase 2 gate includes an extension-heavy statement; extension-tag normalization step (§6). |
-| WACC / β from a thin industry prior is wrong | Medium | Priors labeled `heuristic` (D7/§9); the distribution (D2) propagates the uncertainty rather than hiding it. |
+| Issuer-specific XBRL extensions break ingestion | Medium | Phase 2 gate includes an extension-heavy statement; extension-tag normalization step (§7). |
+| WACC / β from a thin industry prior is wrong | Medium | Priors labeled `heuristic` (D7/§10); the distribution (D2) propagates the uncertainty rather than hiding it. |
 | Ollama model swap silently changes output | Medium | Every provenance record carries the `model`; CI runs one golden output on the default model and diffs against the committed golden (D17/D11) — a model swap that changes output is caught. |
-| Scope-creep into US / DB / UI | Medium | D20 / D16 / D15 make these **decisions, not open questions**; any change requires a new row in §12 and a new D-number. |
+| Scope-creep into US / DB / UI | Medium | D20 / D16 / D15 make these **decisions, not open questions**; any change requires a new row in §13 and a new D-number. |
 | Stub-period / fiscal-calendar mismatch | Low | D28 hard rule; tested at the Phase 2 gate. |
 
 ---
