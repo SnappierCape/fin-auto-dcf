@@ -17,7 +17,7 @@ Given a **US-firm stock ticker** (D20), return a **probability distribution of i
 
 ## 2. Why a Distribution, Not a Number
 
-A classic DCF collapses 10 assumptions into 1 number: garbage in, garbage out. This project produces a **distribution** instead — 10 assumptions with plausible dtandard deviations → **median, p10, p90, P(value > price)**.
+A classic DCF collapses 10 assumptions into 1 number: garbage in, garbage out. This project produces a **distribution** instead — 10 assumptions with plausible standard deviations → **median, p10, p90, P(value > price)**.
 
 - **Scenario DCF as a point-generator:** each named scenario (base / optimistic / pessimistic) yields a median + spread.
 - **Monte Carlo** draws correlated parameter sets and produces the full fair-value distribution per scenario.
