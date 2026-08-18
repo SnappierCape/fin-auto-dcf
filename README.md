@@ -28,7 +28,7 @@ The differentiator — and the main technical risk — is the **LLM reclassifica
 ## 🔁 Pipeline
 
 ```
-SEC EDGAR                Local LLM (Ollama)             DCF kernel                       Monte Carlo
+ SEC EDGAR               Local LLM (Ollama)             DCF kernel                       Monte Carlo
 ┌──────────────┐        ┌─────────────────────┐        ┌────────────────────┐           ┌─────────────────────┐
 │ 10y iXBRL    │──────> │ reclassify onto the │──────> │ WACC · growth ·    │─────────> │ 10,000 correlated   │
 │ filings      │        │ frozen canonical    │        │ terminal value →   │           │ draws (Cholesky),   │
@@ -134,6 +134,8 @@ This is a research and learning tool. All outputs are labeled **research input**
 ## 📖 Documentation
 
 **[PROJECT.md](PROJECT.md)** is the single source of truth for the project: objectives, design premises, the authoritative decision list (D1–D29), the canonical schema, stage mechanics, open questions, the v1 acceptance list, and the phased build plan with gates.
+
+Contributors: see **[CONTRIBUTING.md](CONTRIBUTING.md)** — license policy, the required file-header convention, and the header check.
 
 ---
 
