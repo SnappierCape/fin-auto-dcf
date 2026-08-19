@@ -1,0 +1,196 @@
+{
+    "_about":"FAC SIMILE structure demo, not a real company. Invented numbers chosen so all 12 identity checks in checksums[] pass.",
+    "issuer":"ACME Corp (SAMPLE)",
+    "ticker":"ACME",
+    "cik":null,
+    "fiscal_year":2025,
+    "period_end":"2025-12-31",
+    "unit":"USD millions",
+    "schema_version":"0.draft-2026-08-18",
+    "source":null,
+    "conventions":{
+        "amounts":"as-reported magnitudes; exception: otherNonOperatingIncomeExpense is signed net (income +, expense -). Arithmetic shown per check in checksums[]",
+        "transform":"renamed | reordered | reclassified | other | subtotal | computed",
+        "nulls":"raw_key null => no raw line maps here; a non-zero `other` line with null provenance fails check 12 (D23/D12)"
+    },
+    "statements":{
+        "income_statement":{
+            "revenue":{"raw_key":"us-gaap:Revenues","value":1000,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
+            "cogs_incl_da":{"raw_key":"us-gaap:CostOfGoodsAndServicesSold","value":400,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
+            "cogs_excl_da":{"raw_key":"us-gaap:CostOfGoodsAndServicesSoldExcludingD&A","value":320,"transform":"renamed","provenance":"10-K, note 2 segment/COGS detail"},
+            "d_a":{"raw_key":"us-gaap:DepreciationAmortizationAndAccretionNet","value":80,"transform":"renamed","provenance":"10-K, cash flow statement + note 2"},
+            "other_cost_of_revenue":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+            "gross_profit":{"raw_key":null,"value":600,"transform":"subtotal","provenance":null},
+            "r_d":{"raw_key":"us-gaap:ResearchAndDevelopmentExpenseExcludingD&A","value":150,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
+            "s_g_a":{"raw_key":"us-gaap:SellingAndMarketingExpense","value":200,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
+            "other_opex":{"raw_key":"us-gaap:StockBasedCompensationExpense","value":30,"transform":"other","provenance":"10-K, note 12 stock-based compensation (non-cash opex)"},
+            "ebit":{"raw_key":null,"value":220,"transform":"subtotal","provenance":null},
+            "net_interest_expense":{"raw_key":"us-gaap:InterestExpense","value":20,"transform":"renamed","provenance":"10-K, interest expense net of income"},
+            "other_non_operating_income_expense":{"raw_key":"us-gaap:IncomeLossFromEquityMethodInvestments","value":40,"transform":"reclassified","provenance":"10-K, equity-method income (signed net)"},
+            "other_non_operating":{"raw_key":null,"value":0,"transform":null,"provenance":null},"ebt":{"raw_key":null,"value":240,"transform":"subtotal","provenance":null},
+            "income_tax":{"raw_key":"us-gaap:IncomeLossTaxExpenseBenefit","value":48,"transform":"renamed","provenance":"10-K, provision for income taxes"},
+            "other_items_after_tax":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+            "net_consolidated_profit":{"raw_key":"us-gaap:NetIncomeLoss","value":192,"transform":"renamed","provenance":"10-K, net income"},
+            "minority_interest":{"raw_key":"us-gaap:IncomeLossAttributableToNoncontrollingInterest","value":8,"transform":"renamed","provenance":"10-K, net income attributable to NCI"},
+            "net_profit_attributable":{"raw_key":null,"value":184,"transform":"subtotal","provenance":null},
+            "basic_shares":{"raw_key":"us-gaap:WeightedAverageNumberOfShareOutstandingBasic","value":100,"transform":"renamed","provenance":"10-K, EPS note"},
+            "diluted_shares":{"raw_key":"us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding","value":105,"transform":"renamed","provenance":"10-K, EPS note"},
+            "basic_eps":{"raw_key":"us-gaap:EarningsPerShareBasic","value":1.84,"transform":"renamed","provenance":"10-K, EPS note; cross-check vs 6.8"},
+            "diluted_eps":{"raw_key":"us-gaap:EarningsPerShareDiluted","value":1.75,"transform":"renamed","provenance":"10-K, EPS note; cross-check vs 6.8"}
+        },
+        "current_assets":{
+            "cash_investments":{"raw_key":null,"value":50,"transform":null,"provenance":null},
+            "cash_equivalents":{"raw_key":"us-gaap:CashAndCashEquivalentsAtCarryingValue","value":80,"transform":"renamed","provenance":"10-K, balance sheet"},
+            "st_investments":{"raw_key":"us-gaap:ShortTermInvestments","value":30,"transform":"renamed","provenance":"10-K, balance sheet"},
+            "trading_assets":{"raw_key":null,"value":10,"transform":null,"provenance":null},
+            "ar":{"raw_key":"us-gaap:AccountsReceivableNetCurrent","value":150,"transform":"renamed","provenance":"10-K, balance sheet"},
+            "inv_raw_materials":{"raw_key":null,"value":40,"transform":null,"provenance":null},
+            "inv_work_in_progress":{"raw_key":null,"value":20,"transform":null,"provenance":null},
+            "inv_finished_goods":{"raw_key":null,"value":30,"transform":null,"provenance":null},
+            "inv_other":{"raw_key":null,"value":5,"transform":null,"provenance":null},
+            "current_assets_total":{"raw_key":null,"value":415,"transform":"subtotal","provenance":null}
+        },
+        "non_current_assets":{
+            "net_ppe":{"raw_key":"us-gaap:PropertyPlantAndEquipmentNet","value":350,"transform":"renamed","provenance":"10-K, balance sheet"},
+            "gross_ppe":{"raw_key":"us-gaap:PropertyPlantAndEquipmentGross","value":520,"transform":"renamed","provenance":"10-K, note 6 property, plant and equipment"},
+            "accumulated_depreciation":{"raw_key":"us-gaap:AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment","value":170,"transform":"renamed","provenance":"10-K, note 6"},
+            "goodwill":{"raw_key":"us-gaap:Goodwill","value":60,"transform":"renamed","provenance":"10-K, balance sheet"},
+            "intangible_assets":{"raw_key":"us-gaap:IntangibleAssetsExclusiveOfGoodwillNet","value":90,"transform":"renamed","provenance":"10-K, note 7 intangibles"},
+            "other":{"raw_key":"us-gaap:NonderivativeFinancialInstrumentFinancialAssets","value":45,"transform":"other","provenance":"10-K, other non-current assets (equity-method investments)"},
+            "non_current_assets_total":{"raw_key":null,"value":545,"transform":"subtotal","provenance":null},
+            "total_assets":{"raw_key":"us-gaap:Assets","value":960,"transform":"subtotal","provenance":"10-K, balance sheet"}
+        },
+        "liabilities_equity":{
+            "current":{
+                "st_debt":{"raw_key":"us-gaap:ShortTermBorrowings","value":40,"transform":"renamed","provenance":"10-K, balance sheet"},
+                "a_p":{"raw_key":"us-gaap:AccountsPayableCurrent","value":120,"transform":"renamed","provenance":"10-K, balance sheet"},
+                "dividends_payable":{"raw_key":null,"value":6,"transform":null,"provenance":null},
+                "tax_payable":{"raw_key":"us-gaap:IncomeTaxPayableCurrent","value":12,"transform":"renamed","provenance":"10-K, balance sheet"},
+                "accrued_liabilities":{"raw_key":"us-gaap:AccruedLiabilities","value":27,"transform":"renamed","provenance":"10-K, note 9 contingencies and accruals"},
+                "other":{"raw_key":"us-gaap:LiabilitiesCurrentOther","value":10,"transform":"other","provenance":"10-K, other current liabilities (debt issuance costs)"},
+                "total":{"raw_key":"us-gaap:LiabilitiesCurrent","value":215,"transform":"subtotal","provenance":"10-K, balance sheet"}
+            },
+            "non_current":{
+                "lt_debt":{"raw_key":"us-gaap:LongTermDebt","value":250,"transform":"renamed","provenance":"10-K, note 10 borrowings"},
+                "bonds":{"raw_key":"us-gaap:LongTermDebtSecured","value":150,"transform":"renamed","provenance":"10-K, note 10 senior notes"},
+                "deferred_liabilities":{"raw_key":"us-gaap:DeferredTaxLiabilityNoncurrent","value":35,"transform":"renamed","provenance":"10-K, note 13 income taxes"},
+                "lease_obligations":{"raw_key":"us-gaap:LeaseLiabilityNoncurrent","value":90,"transform":"renamed","provenance":"10-K, note 11 leases (ASC 842, D20)"},
+                "other":{"raw_key":null,"value":10,"transform":"other","provenance":"10-K, other non-current liabilities (pension)"},
+                "total":{"raw_key":"us-gaap:LiabilitiesNoncurrent","value":535,"transform":"subtotal","provenance":"10-K, balance sheet"}
+            },
+            "equity":{
+                "share_capital":{"raw_key":"us-gaap:CommonStockParOrStatedValuePerShareSharesIssued","value":60,"transform":"renamed","provenance":"10-K, stockholders equity"},
+                "reserves":{"raw_key":"us-gaap:AdditionalPaidInCapital","value":40,"transform":"renamed","provenance":"10-K, stockholders equity"},
+                "retained_earnings":{"raw_key":"us-gaap:RetainedEarningsAccumulatedDeficit","value":90,"transform":"renamed","provenance":"10-K, stockholders equity"},
+                "non_controlling_interest":{"raw_key":"us-gaap:RedeemableNoncontrollingInterestInConsolidatedSubsidiaries","value":10,"transform":"renamed","provenance":"10-K, stockholders equity"},
+                "other":{"raw_key":null,"value":10,"transform":"other","provenance":"10-K, accumulated other comprehensive loss (net)"},
+                "total":{"raw_key":"us-gaap:StockholdersEquity","value":210,"transform":"subtotal","provenance":"10-K, balance sheet"}
+            },
+            "computed":{
+                "total_interest_bearing_debt":{
+                    "value":440,
+                    "derived_from":["liabilities_equity.current.st_debt","liabilities_equity.non_current.lt_debt","liabilities_equity.non_current.bonds"],
+                    "rule_version":"r1",
+                    "transform":"computed"
+                }
+            }
+        },
+        "cash_flow":{
+            "cfo":{
+                "net_profit_attributable":{"raw_key":null,"value":184,"transform":"renamed","provenance":"= income statement netProfitAttributable (starting point)"},
+                "d_a":{"raw_key":"us-gaap:DepreciationAmortizationAndAccretionNet","value":80,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "dwc_a_p":{"raw_key":"us-gaap:IncreaseDecreaseInAccountsPayable","value":15,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "dwc_a_r":{"raw_key":"us-gaap:IncreaseDecreaseInReceivables","value":-25,"transform":"renamed","provenance":"10-K, cash flow statement (increase => outflow)"},
+                "dwc_tax_payable":{"raw_key":"us-gaap:IncreaseDecreaseInIncomeTaxesPayable","value":-3,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "dwc_inventories":{"raw_key":"us-gaap:IncreaseDecreaseInInventories","value":-10,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "dwc_other":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+                "other":{"raw_key":"us-gaap:StockBasedCompensationExpense","value":12,"transform":"other","provenance":"10-K, cash flow statement (non-cash expense add-back)"},
+                "total":{"raw_key":null,"value":253,"transform":"subtotal","provenance":null}
+            },
+            "cfi":{
+                "capex":{"raw_key":"us-gaap:PaymentsToAcquirePropertyPlantAndEquipment","value":-110,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "purchase_investments":{"raw_key":"us-gaap:PaymentsToAcquireShortTermInvestments","value":-20,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "maturities_investments":{"raw_key":"us-gaap:ProceedsFromSaleOfShortTermInvestments","value":15,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "other":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+                "total":{"raw_key":null,"value":-115,"transform":"subtotal","provenance":null}
+            },
+            "cff":{
+                "dividends":{"raw_key":"us-gaap:PaymentsOfDividends","value":-9,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "stock_issuance":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+                "stock_buyback":{"raw_key":"us-gaap:PaymentsForRepurchaseOfCommonStock","value":-20,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "debt_issuance":{"raw_key":"us-gaap:ProceedsFromBorrowings","value":30,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "debt_repayment":{"raw_key":"us-gaap:RepaymentsOfBorrowings","value":-40,"transform":"renamed","provenance":"10-K, cash flow statement"},
+                "other":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+                "total":{"raw_key":null,"value":-39,"transform":"subtotal","provenance":null}
+            },
+            "net_cash":{
+                "value":99,
+                "derived_from":["cash_flow.cfo.total","cash_flow.cfi.total","cash_flow.cff.total"],
+                "rule_version":"r1",
+                "transform":"subtotal"
+            }
+        },
+        "cash_reconciliation":{
+            "forex_effects":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+            "delta_cash_from_cfs":{
+                "value":99,
+                "derived_from":["cash_flow.net_cash","cash_reconciliation.for_ex_effects"],
+                "rule_version":"r1",
+                "transform":"computed"
+            },
+            "delta_cash_from_bs":{
+                "value":99,
+                "derived_from":["current_assets.cash_equivalents","current_assets.st_investments"],
+                "rule_version":"r1",
+                "transform":"computed",
+                "provenance":"prior period (cash 7 + ST inv 4) = 11; 110 - 11 = 99"
+            }
+        }
+    },
+    "checksums":[
+        {"id":1,"lhs":400,"rhs":400,"pass":true,"expr":"co_rincl_da 400 = co_rexcl_da 320 + DA 80"},
+        {"id":2,"lhs":600,"rhs":600,"pass":true,"expr":"GP 600 = rev 1000 - co_rincl_da 400 - other_co_r 0"},
+        {"id":3,"lhs":220,"rhs":220,"pass":true,"expr":"EBIT 220 = GP 600 - R&D 150 - SG&A 200 - other_opex 30"},
+        {"id":4,"lhs":240,"rhs":240,"pass":true,"expr":"EBT 240 = EBIT 220 + net_int_exp 20 + other_non_op 40 + other_non_op2 0"},
+        {"id":5,"lhs":192,"rhs":192,"pass":true,"expr":"net_cons 192 = EBT 240 - tax 48 + other_after_tax 0"},
+        {"id":6,"lhs":184,"rhs":184,"pass":true,"expr":"net_attr 184 = net_cons 192 - minority 8"},
+        {"id":7,"lhs":350,"rhs":350,"pass":true,"tolerance":0.01,"expr":"net_pp&E 350 = gross 520 - accum_dep 170"},
+        {"id":8,"lhs":960,"rhs":960,"pass":true,"expr":"TA 960 = CA 415 + NCA 545"},
+        {"id":9,"lhs":960,"rhs":960,"pass":true,"expr":"TA 960 = CL 215 + NCL 535 + Eq 210"},
+        {"id":10,"lhs":99,"rhs":99,"pass":true,"expr":"net_cash 99 = CFO 253 + CFI -115 + CFF -39"},
+        {"id":11,"lhs":99,"rhs":99,"pass":true,"tolerance":0.01,"expr":"d_cash(CFS) 99 = d_cash(BS) 99"},
+        {"id":12,"pass":true,"expr":"every non-zero `other` line above carries a provenance string"}
+    ],
+    "computed_values":{
+        "ebitda":{
+            "value":300,
+            "derived_from":["income_statement.ebit","income_statement.depreciation_amortization"],
+            "rule_version":"r1",
+            "transform":"computed"
+        },
+        "effective_tax_rate":{
+            "value":0.2,
+            "derived_from":["income_statement.income_tax","income_statement.ebt"],
+            "rule_version":"r1",
+            "transform":"computed"
+        },
+        "net_debt":{
+            "value":309,
+            "derived_from":["liabilities_equity.computed.total_interest_bearing_debt","current_assets.cash_equivalents"],
+            "rule_version":"r1",
+            "transform":"computed"
+        },
+        "basic_eps":{
+            "value":1.84,
+            "derived_from":["income_statement.net_profit_attributable","income_statement.basic_shares"],
+            "rule_version":"r1",
+            "transform":"computed"
+        },
+        "diluted_eps":{
+            "value":1.75,
+            "derived_from":["income_statement.net_profit_attributable","income_statement.diluted_shares"],
+            "rule_version":"r1",
+            "transform":"computed"
+        }
+    }
+}
