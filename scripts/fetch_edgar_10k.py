@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 # Copyright 2026 Ulrico Luigi Nava
 # SPDX-License-Identifier: Apache-2.0
-"""Download a company's latest 10-K (primary HTM document) from SEC EDGAR.
+"""Download a company's latest 10-K (primary HTM document) plus the three
+main financial statements, from SEC EDGAR.
 
 Input:  a single CIK (the only required input; 10-digit zero-padded or
         plain digits both accepted).
-Output: data/10k/<cik>_<report_date>_10k.htm   the full 10-K HTML
-        data/10k/<cik>_<report_date>_10k.json a small source-manifest
+Output: data/10k/<cik>_<report_date>_10k.htm                     the full 10-K HTML
+        data/10k/<cik>_<report_date>_10k_income_statement.htm    income statement
+        data/10k/<cik>_<report_date>_10k_balance_sheet.htm       balance sheet
+        data/10k/<cik>_<report_date>_10k_cash_flow_statement.htm cash flow statement
+        data/10k/<cik>_<report_date>_10k.json                    source-manifest
         (provenance metadata for the golden set)
+
+The three statements come from the filing's iXBRL report bundle: EDGAR
+publishes each tagged statement as its own clean HTML file (R*.htm) in the
+same accession directory, and names them in FilingSummary.xml. We identify
+the right three by an anchored match on the <ShortName> values, so wording
+variance between filers (e.g. "INCOME STATEMENTS" vs "Consolidated
+Statements of Operations") is handled without touching the HTML itself.
 
 Notes
 -----
@@ -17,6 +28,7 @@ Notes
 - No third-party dependencies (stdlib only).
 - Picks the most recent form == "10-K" in the submissions feed
   (falls back to "10-K/A" with a warning if that is all that is present).
+- Aborts (loudly) if any of the three statements cannot be identified.
 
 Usage:
     uv run scripts/fetch_edgar_10k.py 1108524
@@ -26,10 +38,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
 import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
@@ -106,6 +120,67 @@ def pick_latest_10k(recent: dict) -> tuple[int, str, str]:
     raise SystemExit("no 10-K or 10-K/A found in the recent filings feed")
 
 
+# --- statement identification (FilingSummary.xml) ----------------------------
+
+# Anchored regexes over <ShortName>. Filers phrase the three statements
+# differently (MSFT: "INCOME STATEMENTS" / "BALANCE SHEETS" / "CASH FLOWS
+# STATEMENTS"; LSCC: "Consolidated Statements of Operations" /
+# "Consolidated Balance Sheets" / "Consolidated Statements of Cash Flows"),
+# so matching is anchored at both ends - loose in the middle, exact at the
+# edges - which also rejects parentheticals, detail tables and notes.
+STATEMENT_PATTERNS: dict[str, tuple[re.Pattern, ...]] = {
+    "income_statement": (
+        re.compile(r"^(consolidated\s+)?statements?\s+of\s+(income|operations)$", re.I),
+        re.compile(r"^(consolidated\s+)?income\s+statements?$", re.I),
+    ),
+    "balance_sheet": (
+        re.compile(r"^(consolidated\s+)?balance\s+sheets?$", re.I),
+    ),
+    "cash_flow_statement": (
+        re.compile(r"^(consolidated\s+)?cash\s+flows?\s+statements?$", re.I),
+        re.compile(r"^(consolidated\s+)?statements?\s+of\s+cash\s+flows?$", re.I),
+    ),
+}
+
+
+def pick_statements(summary_xml: bytes) -> dict[str, dict[str, str]]:
+    """Map statement kind -> {short_name, html_file} from FilingSummary.xml.
+
+    Reads the <Reports>/<Report> list (ShortName + HtmlFileName) of EDGAR's
+    iXBRL report bundle and keeps the first report whose ShortName matches
+    each statement pattern. Raises if any of the three is not identified.
+    """
+    try:
+        root = ET.fromstring(summary_xml)
+    except ET.ParseError as e:
+        raise SystemExit(f"FilingSummary.xml is not valid XML: {e}") from e
+
+    matched: dict[str, dict[str, str]] = {}
+    for report in root.iter("Report"):
+        short = (report.findtext("ShortName") or "").strip()
+        html_file = (report.findtext("HtmlFileName") or "").strip()
+        if not short or not html_file:
+            continue
+        for kind, patterns in STATEMENT_PATTERNS.items():
+            if kind not in matched and any(p.match(short) for p in patterns):
+                matched[kind] = {"short_name": short, "html_file": html_file}
+
+    missing = [k for k in STATEMENT_PATTERNS if k not in matched]
+    if missing:
+        named = {k: v["short_name"] for k, v in matched.items()}
+        candidates = sorted(
+            (r.findtext("ShortName") or "").strip()
+            for r in root.iter("Report")
+            if (r.findtext("ShortName") or "").strip()
+        )
+        raise SystemExit(
+            f"could not identify statements {missing} in FilingSummary.xml "
+            f"(matched so far: {named}). "
+            f"Available ShortNames: {candidates}"
+        )
+    return matched
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         print(__doc__.strip())
@@ -152,14 +227,48 @@ def main() -> None:
     print(f"primary doc  : {primary}")
     print(f"url          : {url}")
 
-    # 2) download -------------------------------------------------------------
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    stem = f"{cik10}_{report_date}_10k"
-    htm_path = OUT_DIR / f"{stem}.htm"
-    meta_path = OUT_DIR / f"{stem}.json"
+    # 2) identify the 3 statements from the report bundle ------------------
+    summary_url = ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + "FilingSummary.xml"
+    print(f"bundle index : {summary_url}")
+    statements = pick_statements(_download(summary_url))
+    for kind in STATEMENT_PATTERNS:
+        print(f"statement    : {statements[kind]['short_name']}  -> {statements[kind]['html_file']}")
 
-    body = _download(url)
+    # 3) download everything, then land it atomically in data/10k/ ---------
+    #    (fetch all 4 first so a mid-way failure never leaves a partial set)
+    files: dict[str, bytes] = {f"10k_{primary}": _download(url)}
+    stem = f"{cik10}_{report_date}"
+    for kind in STATEMENT_PATTERNS:
+        out_name = f"{stem}_10k_{kind}.htm"
+        src = statements[kind]["html_file"]
+        target_url = ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + src
+        print(f"downloading: {src}")
+        files[out_name] = _download(target_url)
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    htm_path = OUT_DIR / f"{stem}_10k.htm"
+    meta_path = OUT_DIR / f"{stem}_10k.json"
+
+    body = files[f"10k_{primary}"]
     htm_path.write_bytes(body)
+
+    statements_meta = {}
+    for kind in STATEMENT_PATTERNS:
+        src = statements[kind]["html_file"]
+        out_name = f"{stem}_10k_{kind}.htm"
+        out_path = OUT_DIR / out_name
+        data = files[out_name]
+        out_path.write_bytes(data)
+        statements_meta[kind] = {
+            "source_html_file": src,
+            "short_name": statements[kind]["short_name"],
+            "local_file": out_name,
+            "source_url": ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + src,
+            "sha256": sha256(data).hexdigest(),
+            "bytes": len(data),
+        }
+        print("-" * 60)
+        print(f"saved {kind:22s}: {out_path}  ({len(data):,} bytes)")
 
     meta = {
         "cik": cik10,
@@ -173,16 +282,16 @@ def main() -> None:
         "source_url": url,
         "sha256": sha256(body).hexdigest(),
         "bytes": len(body),
+        "statements": statements_meta,
         "downloaded_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     meta_path.write_text(json.dumps(meta, indent=4, sort_keys=False) + "\n", encoding="utf-8")
 
     print("-" * 60)
-    print(f"saved htm    : {htm_path}  ({len(body):,} bytes)")
+    print(f"saved htm    : {htm_path}  ({len(body):,} bytes)  sha256 {meta['sha256']}")
     print(f"saved meta   : {meta_path}")
-    print(f"sha256       : {meta['sha256']}")
     tokens = len(body) // 4  # conservative ~4 bytes/token for HTML markup
-    print(f"~tokens      : {tokens:,} (rough, pre-stripped HTML)")
+    print(f"~tokens      : {tokens:,} (rough, pre-stripped HTML, main 10-K only)")
 
 
 if __name__ == "__main__":
