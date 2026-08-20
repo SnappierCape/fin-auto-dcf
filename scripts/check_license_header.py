@@ -12,14 +12,15 @@ first 10 lines):
     SPDX-License-Identifier: Apache-2.0
 
 Usage:
-    python scripts/check_license_header.py              # scan the whole repo
-    python scripts/check_license_header.py FILE [FILE]  # pre-commit mode
+    uv run scripts/check_license_header.py              # scan the whole repo
+    uv run scripts/check_license_header.py FILE [FILE]  # pre-commit mode
 
 Only text formats with comment syntax are checkable (.py .sh .bash
 .toml). Markdown, JSON (data), and binary assets are exempt by design —
 docs are attributed in-repo via the README/LICENSE footer.
 Exit code 0 = all good, 1 = header(s) missing.
 """
+
 from __future__ import annotations
 
 import sys
@@ -29,9 +30,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories never scanned (VCS, venvs, caches, generated/raw data).
 SKIP_DIRS = {
-    ".git", ".venv", "venv", "__pycache__",
-    ".idea", ".vscode", ".mypy_cache", ".ruff_cache", "node_modules",
-    "data", "output",
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".idea",
+    ".vscode",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+    "data",
+    "output",
 }
 
 # Files that carry their own license text and are exempt from the header rule.
@@ -77,7 +86,9 @@ def main(argv: list[str]) -> int:
 
     bad = [f for f in files if not has_header(f)]
     if bad:
-        print(f"check_license_header: {len(bad)}/{len(files)} file(s) missing the Apache-2.0 header:")
+        print(
+            f"check_license_header: {len(bad)}/{len(files)} file(s) missing the Apache-2.0 header:"
+        )
         for b in bad:
             try:
                 rel = b.relative_to(REPO_ROOT)

@@ -1,0 +1,16 @@
+# uv / Python environment — the venv is disposable, the lockfile is source
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Generated artifacts & raw data dumps (CONTRIBUTING.md: no data/ dumps)
+data/10k/
+output/
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/

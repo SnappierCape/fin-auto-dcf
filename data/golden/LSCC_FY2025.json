@@ -1,7 +1,7 @@
 {
-    "_about":"Golden set fixture: Lattice Semiconductor Corporation (LAD), fiscal year 2025. Skeleton: values null until populated from the 10-K.",
+    "_about":"Golden set fixture: Lattice Semiconductor Corporation (LSCC), fiscal year 2025. Skeleton: values null until populated from the 10-K.",
     "issuer":"Lattice Semiconductor Corporation",
-    "ticker":"LAD",
+    "ticker":"LSCC",
     "cik":null,
     "fiscal_year":2025,
     "period_end":null,

@@ -1,0 +1,26 @@
+# Copyright 2026 Ulrico Luigi Nava
+# SPDX-License-Identifier: Apache-2.0
+
+[project]
+name = "fin-auto-dcf"
+version = "0.1.0"
+description = "Natural-language DCF: extract an 8-K/10-K via SEC EDGAR, LLM-classify line items into a golden-set schema, and run a full DCF + Monte-Carlo valuations through a fixed pipeline."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.32",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pydantic>=2.7",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "typer>=0.12",
+    "rich>=13.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fin_auto_dcf"]
