@@ -51,18 +51,24 @@ CHECKED_EXTS = {".py", ".sh", ".bash", ".toml"}
 
 
 def has_header(path: Path) -> bool:
-    """True if the file's first 10 lines state the Apache-2.0 copyright."""
+    """Check whether the first ten lines state the Apache-2.0 copyright."""
     try:
         raw = path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
-        return False  # unreadable/binary -> treat as failure (should not be checked anyway)
+        # Unreadable or binary: treat as a failure. Such files should not
+        # reach this checker in the first place.
+        return False
     head = "\n".join(raw.splitlines()[:10])
     return "Apache-2.0" in head and "Copyright" in head
 
 
 def iter_files(args: list[str]):
+    """Yield every checkable file, honoring the skip rules.
+
+    With explicit arguments (pre-commit mode) the hook has already
+    filtered by extension; the suffix check here is a safety net.
+    """
     if args:
-        # pre-commit mode: the hook already filtered by extension, this is a safety net
         for a in args:
             p = Path(a)
             if p.suffix in CHECKED_EXTS and p.is_file():
@@ -79,6 +85,7 @@ def iter_files(args: list[str]):
 
 
 def main(argv: list[str]) -> int:
+    """Check the files and report the ones missing the header."""
     files = list(iter_files(argv[1:]))
     if not files:
         print("check_license_header: no checkable files found — OK")
@@ -87,7 +94,8 @@ def main(argv: list[str]) -> int:
     bad = [f for f in files if not has_header(f)]
     if bad:
         print(
-            f"check_license_header: {len(bad)}/{len(files)} file(s) missing the Apache-2.0 header:"
+            "check_license_header: "
+            f"{len(bad)}/{len(files)} file(s) missing the Apache-2.0 header:"
         )
         for b in bad:
             try:
@@ -100,7 +108,10 @@ def main(argv: list[str]) -> int:
         print("    SPDX-License-Identifier: Apache-2.0")
         return 1
 
-    print(f"check_license_header: {len(files)} file(s) checked — all carry the header — OK")
+    print(
+        f"check_license_header: {len(files)} file(s) checked "
+        "- all carry the header - OK"
+    )
     return 0
 
 

@@ -1,37 +1,45 @@
 #!/usr/bin/env python3
 # Copyright 2026 Ulrico Luigi Nava
 # SPDX-License-Identifier: Apache-2.0
-"""Download a company's latest 10-K (primary HTM document) plus the three
-main financial statements, from SEC EDGAR.
+"""Download the latest 10-K plus its three main financial statements.
 
-Input:  a single CIK (the only required input; 10-digit zero-padded or
-        plain digits both accepted).
-Output: data/10k/<cik>_<report_date>_10k.htm                     the full 10-K HTML
-        data/10k/<cik>_<report_date>_10k_income_statement.htm    income statement
-        data/10k/<cik>_<report_date>_10k_balance_sheet.htm       balance sheet
-        data/10k/<cik>_<report_date>_10k_cash_flow_statement.htm cash flow statement
-        data/10k/<cik>_<report_date>_10k.json                    source-manifest
-        (provenance metadata for the golden set)
+Fetches, from SEC EDGAR, the primary HTM document of a company's most
+recent 10-K plus the three main statements, identified through the
+filing's iXBRL report bundle.
+
+Input: a single CIK (the only required input; 10-digit zero-padded or
+plain digits both accepted).
+
+Output: files written under data/10k/
+    - <cik>_<report_date>_10k.htm (the full 10-K HTML)
+    - <cik>_<report_date>_10k_income_statement.htm (income statement)
+    - <cik>_<report_date>_10k_balance_sheet.htm (balance sheet)
+    - <cik>_<report_date>_10k_cash_flow_statement.htm (cash flow statement)
+    - <cik>_<report_date>_10k.json (source-manifest)
+Every manifest carries provenance metadata for the golden set.
 
 The three statements come from the filing's iXBRL report bundle: EDGAR
-publishes each tagged statement as its own clean HTML file (R*.htm) in the
-same accession directory, and names them in FilingSummary.xml. We identify
-the right three by an anchored match on the <ShortName> values, so wording
-variance between filers (e.g. "INCOME STATEMENTS" vs "Consolidated
-Statements of Operations") is handled without touching the HTML itself.
+publishes each tagged statement as its own clean HTML file (R*.htm) in
+the same accession directory, and names them in FilingSummary.xml. We
+identify the right three by an anchored match on the <ShortName> values,
+so wording variance between filers (e.g. "INCOME STATEMENTS" vs
+"Consolidated Statements of Operations") is handled without touching
+the HTML itself.
 
 Notes
 -----
-- SEC "fair access" rules require a User-Agent identifying you. Default
-  below is a harmless placeholder - edit CONTACT or set EDGAR_CONTACT to
-  a real name <email> before heavy use.
+- SEC "fair access" rules require a User-Agent identifying you. The
+  default below is a harmless placeholder - edit CONTACT or set
+  EDGAR_CONTACT to a real name <email> before heavy use.
 - No third-party dependencies (stdlib only).
-- Picks the most recent form == "10-K" in the submissions feed
-  (falls back to "10-K/A" with a warning if that is all that is present).
+- Picks the most recent form == "10-K" in the submissions feed (falls
+  back to "10-K/A" with a warning if that is all that is present).
 - Aborts (loudly) if any of the three statements cannot be identified.
 
-Usage:
+Usage
+-----
     uv run scripts/fetch_edgar_10k.py 1108524
+
 """
 
 from __future__ import annotations
@@ -62,11 +70,15 @@ OUT_DIR = REPO_ROOT / "data" / "10k"
 MAX_ATTEMPTS = 3
 
 
-# --- tiny fetch helper --------------------------------------------------------
+# --- tiny fetch helper -------------------------------------------------------
 
 
 def _download(url: str) -> bytes:
-    """GET bytes with User-Agent. Retries on 429/5xx, 403 -> hint, else raise."""
+    """GET a URL with a compliant User-Agent, retrying on 429/5xx.
+
+    A 403 exits with a hint about the contact identity; any other
+    error propagates once the retry budget is spent.
+    """
     last_err: Exception | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
@@ -101,7 +113,8 @@ def get_json(url: str) -> dict:
     except json.JSONDecodeError as e:
         raise SystemExit(f"response from {url} was not valid JSON: {e}") from e
     if not isinstance(obj, dict):
-        raise SystemExit(f"expected a JSON object from {url}, got {type(obj).__name__}")
+        name = type(obj).__name__
+        raise SystemExit(f"expected a JSON object from {url}, got {name}")
     return obj
 
 
@@ -109,7 +122,11 @@ def get_json(url: str) -> dict:
 
 
 def pick_latest_10k(recent: dict) -> tuple[int, str, str]:
-    """Return (index, form, label) of the newest 10-K in the submissions feed."""
+    """Return the newest 10-K entry of the submissions feed.
+
+    A plain 10-K wins; if only amendments are present, the newest
+    10-K/A is returned and labelled as such.
+    """
     forms = recent["form"]
     for i, f in enumerate(forms):
         if f == "10-K":
@@ -130,7 +147,10 @@ def pick_latest_10k(recent: dict) -> tuple[int, str, str]:
 # edges - which also rejects parentheticals, detail tables and notes.
 STATEMENT_PATTERNS: dict[str, tuple[re.Pattern, ...]] = {
     "income_statement": (
-        re.compile(r"^(consolidated\s+)?statements?\s+of\s+(income|operations)$", re.I),
+        re.compile(
+            r"^(consolidated\s+)?statements?\s+of\s+(income|operations)$",
+            re.I,
+        ),
         re.compile(r"^(consolidated\s+)?income\s+statements?$", re.I),
     ),
     "balance_sheet": (
@@ -138,7 +158,10 @@ STATEMENT_PATTERNS: dict[str, tuple[re.Pattern, ...]] = {
     ),
     "cash_flow_statement": (
         re.compile(r"^(consolidated\s+)?cash\s+flows?\s+statements?$", re.I),
-        re.compile(r"^(consolidated\s+)?statements?\s+of\s+cash\s+flows?$", re.I),
+        re.compile(
+            r"^(consolidated\s+)?statements?\s+of\s+cash\s+flows?$",
+            re.I,
+        ),
     ),
 }
 
@@ -182,6 +205,7 @@ def pick_statements(summary_xml: bytes) -> dict[str, dict[str, str]]:
 
 
 def main() -> None:
+    """Fetch the 10-K bundle for the CIK given as the only argument."""
     if len(sys.argv) != 2:
         print(__doc__.strip())
         raise SystemExit(1)
@@ -214,10 +238,12 @@ def main() -> None:
 
     if not primary:
         # Fallback: ask the filing's index.json which file is the primary doc.
-        print("primaryDocument missing - consulting index.json ...")
-        index = get_json(ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + "index.json")
+        index_url = ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir)
+        index = get_json(index_url + "index.json")
         for item in index.get("directory", {}).get("item", []):
-            if item.get("name", "").endswith((".htm", ".html")) and item.get("type") == "text/html":
+            if item.get("type") != "text/html":
+                continue
+            if item.get("name", "").endswith((".htm", ".html")):
                 primary = item["name"]
                 break
         if not primary:
@@ -228,11 +254,14 @@ def main() -> None:
     print(f"url          : {url}")
 
     # 2) identify the 3 statements from the report bundle ------------------
-    summary_url = ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + "FilingSummary.xml"
+    summary_url = (
+        ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + "FilingSummary.xml"
+    )
     print(f"bundle index : {summary_url}")
     statements = pick_statements(_download(summary_url))
     for kind in STATEMENT_PATTERNS:
-        print(f"statement    : {statements[kind]['short_name']}  -> {statements[kind]['html_file']}")
+        entry = statements[kind]
+        print(f"statement    : {entry['short_name']}  -> {entry['html_file']}")
 
     # 3) download everything, then land it atomically in data/10k/ ---------
     #    (fetch all 4 first so a mid-way failure never leaves a partial set)
@@ -263,7 +292,9 @@ def main() -> None:
             "source_html_file": src,
             "short_name": statements[kind]["short_name"],
             "local_file": out_name,
-            "source_url": ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + src,
+            "source_url": (
+                ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + src
+            ),
             "sha256": sha256(data).hexdigest(),
             "bytes": len(data),
         }
@@ -283,15 +314,24 @@ def main() -> None:
         "sha256": sha256(body).hexdigest(),
         "bytes": len(body),
         "statements": statements_meta,
-        "downloaded_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "downloaded_at": datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
     }
-    meta_path.write_text(json.dumps(meta, indent=4, sort_keys=False) + "\n", encoding="utf-8")
+    meta_text = json.dumps(meta, indent=4, sort_keys=False) + "\n"
+    meta_path.write_text(meta_text, encoding="utf-8")
 
     print("-" * 60)
-    print(f"saved htm    : {htm_path}  ({len(body):,} bytes)  sha256 {meta['sha256']}")
+    print(
+        f"saved htm    : {htm_path}  ({len(body):,} bytes)  "
+        f"sha256 {meta['sha256']}"
+    )
     print(f"saved meta   : {meta_path}")
     tokens = len(body) // 4  # conservative ~4 bytes/token for HTML markup
-    print(f"~tokens      : {tokens:,} (rough, pre-stripped HTML, main 10-K only)")
+    print(
+        f"~tokens      : {tokens:,} (rough, pre-stripped HTML, "
+        "main 10-K only)"
+    )
 
 
 if __name__ == "__main__":
