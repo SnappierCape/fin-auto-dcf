@@ -60,75 +60,71 @@
             "non_current_assets_total":{"raw_key":null,"value":null,"transform":null,"provenance":null},
             "total_assets":{"raw_key":null,"value":null,"transform":null,"provenance":null}
         },
-        "liabilities_equity":{
-            "current":{
-                "st_debt":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "a_p":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dividends_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "tax_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "accrued_liabilities":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "non_current":{
-                "lt_debt":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "bonds":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "deferred_liabilities":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "lease_obligations":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "equity":{
-                "share_capital":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "reserves":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "retained_earnings":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "non_controlling_interest":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "computed":{
-                "total_interest_bearing_debt":{
-                    "value":null,
-                    "derived_from":[null,null,null],
-                    "rule_version":null,
-                    "transform":null
-                }
-            }
+        "current_liabilities":{
+            "st_debt":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "a_p":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dividends_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "tax_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "accrued_liabilities":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
         },
-        "cash_flow":{
-            "cfo":{
-                "net_profit_attributable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "d_a":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dwc_a_p":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dwc_a_r":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dwc_tax_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dwc_inventories":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "dwc_other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "cfi":{
-                "capex":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "purchase_investments":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "maturities_investments":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "cff":{
-                "dividends":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "stock_issuance":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "stock_buyback":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "debt_issuance":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "debt_repayment":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
-                "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
-            },
-            "net_cash":{
+        "non_current_liabilities":{
+            "lt_debt":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "bonds":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "deferred_liabilities":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "lease_obligations":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
+        },
+        "equity":{
+            "share_capital":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "reserves":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "retained_earnings":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "non_controlling_interest":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
+        },
+        "computed":{
+            "total_interest_bearing_debt":{
                 "value":null,
                 "derived_from":[null,null,null],
                 "rule_version":null,
                 "transform":null
             }
+        },
+        "cfo":{
+            "net_profit_attributable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "d_a":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dwc_a_p":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dwc_a_r":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dwc_tax_payable":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dwc_inventories":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "dwc_other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
+        },
+        "cfi":{
+            "capex":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "purchase_investments":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "maturities_investments":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
+        },
+        "cff":{
+            "dividends":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "stock_issuance":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "stock_buyback":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "debt_issuance":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "debt_repayment":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "other":{"raw_key":null,"value":null,"transform":null,"provenance":null},
+            "total":{"raw_key":null,"value":null,"transform":null,"provenance":null}
+        },
+        "net_cash":{
+            "value":null,
+            "derived_from":[null,null,null],
+            "rule_version":null,
+            "transform":null
         },
         "cash_reconciliation":{
             "forex_effects":{"raw_key":null,"value":null,"transform":null,"provenance":null},
