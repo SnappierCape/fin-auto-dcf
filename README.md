@@ -106,10 +106,10 @@ Requires a local [Ollama](https://ollama.com) instance with at least 64.000 toke
 
 ## 🗺️ Roadmap
 
-- [x] **Design & freeze** — objectives, premises, decision list (D1–D29), canonical schema
+- [x] **Design & freeze** — objectives, premises, limitations
 - [ ] **Phase 0** — Foundation: scaffolding, CI, frozen canonical schema, golden fixture set
-- [ ] **Phase 1** — LLM reclassification — the **GO/NO-GO gate**
-- [ ] **Phase 2** — Data ingestion (real EDGAR statements)
+- [ ] **Phase 1** — Data ingestion (real EDGAR statements)
+- [ ] **Phase 2** — LLM reclassification — the **GO/NO-GO gate**
 - [ ] **Phase 3** — Estimation & DCF kernel
 - [ ] **Phase 4** — Monte Carlo & fair-value distribution
 - [ ] **Phase 5** — Backtest against realized outcomes
@@ -127,7 +127,7 @@ This is a research and learning tool. All outputs are labeled **research input**
 
 **[PROJECT.md](PROJECT.md)** is the **decision log**: the authoritative list of all decisions, closed (D1–D29) and open (O1–O9), each with its motivation. It contains no other content — deliberately.
 
-Contributors: see **[CONTRIBUTING.md](CONTRIBUTING.md)** — license policy, the required file-header convention, and the header check.
+Contributors: see **[CONTRIBUTING.md](CONTRIBUTING.md)** — license policy, the required file-header license, and the style conventions.
 
 ---
 
@@ -151,4 +151,5 @@ Model weights are not redistributed; only prompts + pipeline code are licensed.
 
 - [SEC EDGAR](https://www.sec.gov/cgi-bin/browse-edgar) — the primary source of issuer financial data (iXBRL).
 - [Ollama](https://ollama.com) — local, open-weight LLM serving.
+- [Qwen](https://huggingface.co/Qwen) ─ Open source LLM models.
 - The hand-reclassified golden fixture set: the thing the whole project is validated against before a single dollar of DCF math gets a say.
