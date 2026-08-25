@@ -36,16 +36,15 @@ label + hierarchy + tag, and a validator does the arithmetic later.
 
 Usage (from the repo root; CWD-independent for data and output dirs)::
 
-    uv run src/llm/convert.py 0000034088 bs                # defaults
-    uv run src/llm/convert.py 789019 cf --out /tmp/m.csv.. # explicit out
+    uv run src/llm/convert.py 0000034088 bs                 # defaults
+    uv run src/llm/convert.py 789019 cf --out /tmp/m.csv..  # explicit out
 
 Programmatic:
 
     from src.llm.convert import convert, Converter
-    out = convert("0000789019", "is")            # -> src/llm/789019_is.json
+    out = convert("0000789019", "is")  # -> src/llm/789019_is.json
     out = convert("789019", "cf", out=Path("tmp/cf.json"))
-    records = Converter("cf", "789019").convert(
-        find_filing("789019", "cf"))
+    records = Converter("cf", "789019").convert(find_filing("789019", "cf"))
 
 The hooks below the pipeline (main_table / skip_row / label_of / tag_of /
 level_of / has_value) are intentionally tiny, per-filer-overridable
@@ -56,6 +55,7 @@ layout shifts a detail, without touching the pipeline around them.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -66,43 +66,46 @@ from bs4 import BeautifulSoup
 # swap for the stdlib "html.parser" if lxml must never appear.
 PARSER = "lxml"
 
-# ---------------------------------------------------------------------------
+
+# =============================================================================
 # Paths and constants
-# ---------------------------------------------------------------------------
+# =============================================================================
 
-# This file lives in src/llm/convert.py, so:
-LLM_DIR = Path(__file__).resolve().parent            # default output dir
-DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"       # filing html files
 
-STATEMENTS = ("is", "bs", "cf")                        # valid statement names
+LLM_DIR = Path(__file__).resolve().parent
+DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"  # filing html files
+STATEMENTS = ("is", "bs", "cf")  # valid statement names
 
-# The concept reference a row's "Details" anchor points at.  It is the
+# The concept reference a row's "Details" anchor points at. It is the
 # only machine-stable identity a row has; it is what we audit.
 _TAG_RE = re.compile(r"Show\.showAR\(\s*this\s*,\s*'([^']+)'")
 
 # A cell that is (part of) a number: optional currency sign, digits with
 # thousands separators and / or decimals, optional parentheses or percent.
-_VALUE_RE = re.compile(
-    r"^\s*[(]?\s?[$€£]?\s?[\d][\d,\.\s%]*\s*$"
-)
+_VALUE_RE = re.compile(r"^\s*[(]?\s?[$€£]?\s?[\d][\d,\.\s%]*\s*$")
 
 # A whitespace character lxml decodes from entities such as &#160; .
 _WS_RE = re.compile(r"[\s\xa0]+")
 
 
 def _clean(text: str) -> str:
-    """Collapse all whitespace (incl. nbsp) to single spaces, trim ends."""
+    """Collapses all whitespaces (incl. nbsp) to single spaces, trim ends."""
     return _WS_RE.sub(" ", text).strip()
 
 
+# =============================================================================
+# Main class
+# =============================================================================
+
+
 class Converter:
-    """One 10-K statement R-file -> a list of flat records (see module doc).
+    """One 10-K statement R-file -> a flat JSON of records (see module doc).
 
     The pipeline is fixed: find the table, walk its rows, extract fields.
     The hooks each answer one question with a per-filer-overridable
     default; override only what differs on the new filer.
 
-    Subclass and pass to convert() to adapt, e.g.::
+    Subclass and pass to convert() to adapt, e.g.:
 
         class Msc(Converter):
             def has_value(self, cells): ...
@@ -120,27 +123,31 @@ class Converter:
         self.stmt = stmt
         self.cik = cik.lstrip("0") or cik
 
-    # -- fixed pipeline --------------------------------------------------
-
+    # -------------------------------------------------------------------------
+    # Fixed pipeline
+    # -------------------------------------------------------------------------
+    
     @staticmethod
     def soup(path: Path) -> BeautifulSoup:
-        """Parse the html file into a BeautifulSoup tree (lxml backend)."""
-        return BeautifulSoup(
-            path.read_text(encoding="utf-8"), PARSER
-        )
+        """Parses the .htm file into a BeautifulSoup tree (lxml backend).
+        
+        Ingests the raw .htm file as a pathlib Path object and extracts the raw
+        utf-8 charachters to trat it as simple text to parse.git add
+        """
+        return BeautifulSoup(path.read_text(encoding="utf-8"), PARSER)
 
-    def main_table(self, soup: BeautifulSoup):
+    def main_table(self, soup: BeautifulSoup):  # NOTE: Brittle.
         """The statement's table.
 
         Default: the single <table class="report"> the R-file builder
         emits; fall back to the first row-bearing table.  Override for
         a layout where the statement table is something else.
         """
-        table = soup.find("table", class_=["report"])
+        table = soup.find("table", class_=["report"])  # finds 1° table with class "report"
         if table is None:
             table = next(
-                (t for t in soup.find_all("table") if t.find("tr")),
-                soup.find("table"),
+                (t for t in soup.find_all("table") if t.find("tr")),  # first table with "tr"
+                soup.find("table"),  # first table in general
             )
         if table is None:
             raise ValueError("no <table> found in file")
@@ -148,16 +155,16 @@ class Converter:
 
     @staticmethod
     def rows(table) -> list:
-        """The table's own rows.
+        """Every row of the table.
 
-        Direct <tr> children only (recursive=False): footnote and
+        Directs <tr> children only (recursive=False): footnote and
         definition tables live *inside* report cells and must not leak
         in as rows.
         """
         return table.find_all("tr", recursive=False)
 
     def skip_row(self, row) -> bool:
-        """Drop a row.
+        """Drops a row.
 
         Default: rows without a concept reference -- the two header
         rows and any layout row never got a tag.  A data row we cannot
@@ -171,13 +178,13 @@ class Converter:
         return row.find_all(["td", "th"], recursive=False)
 
     def convert(self, path: Path) -> list[dict]:
-        """Read one statement file and return its list of records."""
+        """Reads one statement file and returns its list of records."""
         table = self.main_table(self.soup(path))
         records = []
         order = 0
         for row in self.rows(table):
             if self.skip_row(row):
-                continue
+                continue  # NOTE: Isn't it dangerous to skip rows without tag?
             order += 1
             cells = self.cells(row)
             records.append({
@@ -195,25 +202,22 @@ class Converter:
 
     def dumps(self, records: list[dict]) -> str:
         """Compact JSON, no decorative whitespace (project convention)."""
-        import json
         return json.dumps(records, ensure_ascii=False, separators=(",", ":"))
 
-    # -- per-filer hooks -----------------------------------------------------
+    def label_of(self, cells) -> str:  # NOTE: Brittle.
+        """The row's label value.
 
-    def label_of(self, cells) -> str:
-        """The row's label text.
-
-        Default: the first non-empty cell's text (the label cell in
+        Default: the first non-empty cell in the row (the label cell in
         these reports; footnote markers like [1] stay in).  Override if
         a filer puts the label somewhere else.
         """
         for cell in cells:
-            text = _clean(cell.get_text())
+            text = _clean(cell.get_text())  # remove whitespaces
             if text:
-                return text
+                return text  # return the first non-empty one
         return ""
 
-    def tag_of(self, cells) -> str:
+    def tag_of(self, cells) -> str:  # NOTE: Brittle.
         """The concept reference for the row, verbatim.
 
         Default: the first Show.showAR("...") argument found anywhere in
@@ -222,14 +226,14 @@ class Converter:
         if a filer carries the concept elsewhere.
         """
         for cell in cells:
-            m = _TAG_RE.search(cell.get_text())
+            m = _TAG_RE.search(cell.get_text())  # search visible text
             if not m:
-                m = _TAG_RE.search(str(cell))
+                m = _TAG_RE.search(str(cell))  # search raw htm
             if m:
-                return m.group(1)
+                return m.group(1)  # return first captured group
         return ""
 
-    def level_of(self, cells) -> int:
+    def level_of(self, cells) -> int:  # NOTE: Brittle.
         """Grouping depth of the row.
 
         Default: 0 for subtotal / heading rows (label rendered bold),
@@ -255,14 +259,13 @@ class Converter:
         seen_label = False
         for cell in cells:
             text = _clean(cell.get_text())
-            if not text:
+            if not text:  # skip empty cells
                 continue
-            if not seen_label and not _TAG_RE.search(str(cell)):
+            if not seen_label and not _TAG_RE.search(str(cell)):  # skip tag cell
                 seen_label = True
-            elif _VALUE_RE.match(text):
+            elif _VALUE_RE.match(text):  # check numeric pattern
                 return True
         return False
-
 
 # ---------------------------------------------------------------------------
 # Finding and running the conversion.
@@ -287,7 +290,6 @@ def find_filing(cik: str, stmt: str) -> Path:
         )
     return hits[-1]
 
-
 def convert(
     cik: str,
     stmt: str,
@@ -296,12 +298,12 @@ def convert(
 ) -> Path:
     """Full automatic pass: locate the file, extract records, write JSON.
 
-    cik     -- CIK, any width (34088 or 0000034088).
-    stmt    -- "is", "bs" or "cf".
+    cik       -- CIK, any width (34088 or 0000034088).
+    stmt      -- ("is" | "bs" | "cf").
     converter -- a (possibly subclassed) Converter; defaults to one
                  built for this cik + stmt.  Pass a subclass instance
                  to override hooks for a differently laid-out filer.
-    out     -- output json path; default LLM_DIR/{cik}_{stmt}.json.
+    out       -- output json path; default LLM_DIR/{cik}_{stmt}.json.
 
     Returns the path written, so a pipeline can chain on it.
     """
