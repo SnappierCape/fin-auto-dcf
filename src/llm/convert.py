@@ -1,230 +1,338 @@
 #!/usr/bin/env python3
 # Copyright 2026 Ulrico Luigi Nava
 # SPDX-License-Identifier: Apache-2.0
-"""Convert one EDGAR R-file (standalone statement .htm) into line records.
+"""Converts a 10-K statement R-file (standalone .htm) into LLM-ready JSON.
 
-This is the HTM -> JSON stage of the LLM reclassification pipeline.
-EDGAR pre-renders each tagged section of a filing as a clean standalone
-HTML table (an "R-file", e.g. the balance-sheet-only extract). Every R-file
-presents a <table> of statement rows, but they do NOT all share the exact
-same layout: the header row can be nested, label cells can be spanned with
-colspan, the XBRL tag column may or may not be present.
+The pipeline is fully automatic: given a CIK and a statement name, the
+module locates the right pre-split R-file under data/10k/, extracts one
+flat record per data row, and writes compact JSON into the llm/ folder.
 
-So this module defines the *structure* of the conversion and stops short
-of hard-coding one particular filer's layout. Everything that is shared
-(load, row walk, record shape, JSON serialisation) is fixed. Everything
-that is layout-specific is delegated to the overridable hooks below.
+Record contract (fixed, snake_case, key order stable):
 
-To adapt a given R-file: subclass Converter and override only the hooks
-that differ. convert() stays the single entry point and is unchanged.
+    "id"           : "34088_bs_01",
+    "stmt"         : "bs",
+    "order"        : 1,
+    "level"        : 0,
+    "label"        : "Current assets",
+    "tag"          : "defref_us-gaap_AssetsCurrentAbstract",
+    "has_value"    : false
 
-Record contract (one dict per data row, keys always present):
-    id         str   stable row key: "<base>_<zero-padded-order>"
-    stmt       str   which statement it came from (is | bs | cf | custom)
-    order      int   row position within the table, 0-based
-    level      int   hierarchy depth of the row (0 = top line)
-    label      str   the cleaned line-label text
-    tag        str   the XBRL concept on this row ("" when absent)
-    has_value  bool  True when the row carries at least one period value
+Meaning:
 
-Values are deliberately NOT parsed into numbers here -- this stage is
-text- and structure-only. Downstream (tag reclassification, number
-extraction) reads from this record shape.
+    id        -- "{cik}_{stmt}_{row:02d}", stable across runs for the same file
+    stmt      -- the statement name (is / bs / cf)
+    order     -- 1-based position among data rows (headers excluded)
+    level     -- grouping depth: 0 = subtotal / heading (bold row),
+                 1 = ordinary line item (no indentation exists in these
+                 files' markup, so bold is the only reliable signal)
+    label     -- the line's text, verbatim (whitespace collapsed, footnote
+                 markers such as [1] preserved)
+    tag       -- the concept reference in the row's "Details" anchor,
+                 kept exactly (defref_us-gaap_*, defref_cisco_*, ...)
+    has_value -- whether the row carried numeric period values
 
-Usage (as a script):
-    uv run src/llm/convert.py <file.htm> --stmt bs
-    uv run src/llm/convert.py <file.htm> --stmt bs --out out.json
+Numbers are not parsed into the records: classification is driven by
+label + hierarchy + tag, and a validator does the arithmetic later.
+
+Usage (from the repo root; CWD-independent for data and output dirs)::
+
+    uv run src/llm/convert.py 0000034088 bs                # defaults
+    uv run src/llm/convert.py 789019 cf --out /tmp/m.csv.. # explicit out
+
+Programmatic:
+
+    from src.llm.convert import convert, Converter
+    out = convert("0000789019", "is")            # -> src/llm/789019_is.json
+    out = convert("789019", "cf", out=Path("tmp/cf.json"))
+    records = Converter("cf", "789019").convert(
+        find_filing("789019", "cf"))
+
+The hooks below the pipeline (main_table / skip_row / label_of / tag_of /
+level_of / has_value) are intentionally tiny, per-filer-overridable
+defaults.  They exist so this module keeps working when a new filer's
+layout shifts a detail, without touching the pipeline around them.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
+import re
+import sys
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-# HTML parser handed to BeautifulSoup. "lxml" is the most lenient for the
-# messy, inconsistent markup EDGAR produces. Switch to the stdlib
-# "html.parser" to drop the lxml dependency entirely.
+# bs4 backend: lxml is lenient about EDGAR's mixed/incomplete markup;
+# swap for the stdlib "html.parser" if lxml must never appear.
 PARSER = "lxml"
 
+# ---------------------------------------------------------------------------
+# Paths and constants
+# ---------------------------------------------------------------------------
 
-# =============================================================================
-# Converter : fixed pipeline + layout hooks
-# =============================================================================
+# This file lives in src/llm/convert.py, so:
+LLM_DIR = Path(__file__).resolve().parent            # default output dir
+DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"       # filing html files
+
+STATEMENTS = ("is", "bs", "cf")                        # valid statement names
+
+# The concept reference a row's "Details" anchor points at.  It is the
+# only machine-stable identity a row has; it is what we audit.
+_TAG_RE = re.compile(r"Show\.showAR\(\s*this\s*,\s*'([^']+)'")
+
+# A cell that is (part of) a number: optional currency sign, digits with
+# thousands separators and / or decimals, optional parentheses or percent.
+_VALUE_RE = re.compile(
+    r"^\s*[(]?\s?[$€£]?\s?[\d][\d,\.\s%]*\s*$"
+)
+
+# A whitespace character lxml decodes from entities such as &#160; .
+_WS_RE = re.compile(r"[\s\xa0]+")
+
+
+def _clean(text: str) -> str:
+    """Collapse all whitespace (incl. nbsp) to single spaces, trim ends."""
+    return _WS_RE.sub(" ", text).strip()
 
 
 class Converter:
-    """Turn one R-file (an HTM statement table) into a list of line records.
+    """One 10-K statement R-file -> a list of flat records (see module doc).
 
-    The fixed pipeline is:
+    The pipeline is fixed: find the table, walk its rows, extract fields.
+    The hooks each answer one question with a per-filer-overridable
+    default; override only what differs on the new filer.
 
-        HTM  ->  text     (load)
-             ->  soup     (make_soup)
-             ->  table    (main_table)
-             ->  rows     (skip_row  keeps only data rows)
-             ->  cells    (split_row)
-             ->  record   (build_row, using the interpret hooks)
+    Subclass and pass to convert() to adapt, e.g.::
 
-    Only the row interpretation is delegated to the hooks. If you are
-    parsing a filer whose R-file looks different, override one or more
-    hooks -- you never need to touch convert() itself.
+        class Msc(Converter):
+            def has_value(self, cells): ...
+        records = convert("789019", "is", converter=Msc("is"))
     """
 
-    # -------------------------------------------------------------------------
-    # Configuration
-    # -------------------------------------------------------------------------
+    #: statement name, stamped into every record (is / bs / cf).
+    stmt: str
+    #: CIK, stripped of leading zeros (34088, not 0000034088).
+    cik: str
 
-    def __init__(self, stmt: str = "generic") -> None:
-        """Record the statement kind (is|bs|cf|custom) stamped on each line."""
+    def __init__(self, stmt: str, cik: str = "") -> None:
+        if stmt not in STATEMENTS:
+            sys.exit(f"convert: unknown statement {stmt!r} (want is|bs|cf)")
         self.stmt = stmt
+        self.cik = cik.lstrip("0") or cik
 
-    # -------------------------------------------------------------------------
-    # Layout hooks
-    # -------------------------------------------------------------------------    
-    # Override any of these for a differently laid-out
-    # HTML table. Each has a sensible default so convert() runs out of the
-    # box, but a real R-file will usually want label_of / tag_of / level_of
-    # adjusted.
+    # -- fixed pipeline --------------------------------------------------
+
+    @staticmethod
+    def soup(path: Path) -> BeautifulSoup:
+        """Parse the html file into a BeautifulSoup tree (lxml backend)."""
+        return BeautifulSoup(
+            path.read_text(encoding="utf-8"), PARSER
+        )
 
     def main_table(self, soup: BeautifulSoup):
-        """Returns the table element that holds the statement rows.
+        """The statement's table.
 
-        Default: the first <table>. Override when the statement table is
-        not first on the page (after a title, wrapped, etc.).
+        Default: the single <table class="report"> the R-file builder
+        emits; fall back to the first row-bearing table.  Override for
+        a layout where the statement table is something else.
         """
-        return soup.find("table")
+        table = soup.find("table", class_=["report"])
+        if table is None:
+            table = next(
+                (t for t in soup.find_all("table") if t.find("tr")),
+                soup.find("table"),
+            )
+        if table is None:
+            raise ValueError("no <table> found in file")
+        return table
+
+    @staticmethod
+    def rows(table) -> list:
+        """The table's own rows.
+
+        Direct <tr> children only (recursive=False): footnote and
+        definition tables live *inside* report cells and must not leak
+        in as rows.
+        """
+        return table.find_all("tr", recursive=False)
 
     def skip_row(self, row) -> bool:
-        """True when a row should be dropped (header, total, spacer, note).
+        """Drop a row.
 
-        Default: drop only blank rows. Override to also drop a filer's
-        column-header row, section headings, or parenthetical details.
+        Default: rows without a concept reference -- the two header
+        rows and any layout row never got a tag.  A data row we cannot
+        tag is one we cannot audit, so it is dropped rather than
+        guessed at.
         """
-        return row.get_text(strip=True) == ""
+        return not self.tag_of(self.cells(row))
 
-    def split_row(self, row) -> list[str]:
-        """Flattens one table row into a list of cleaned cell strings.
+    def cells(self, row) -> list:
+        """A row's cells as a list of BeautifulSoup elements."""
+        return row.find_all(["td", "th"], recursive=False)
 
-        Uses <td>/<th>; if a row has neither (a bare <tr> of text) it falls
-        back to treating the row itself as a single cell.
+    def convert(self, path: Path) -> list[dict]:
+        """Read one statement file and return its list of records."""
+        table = self.main_table(self.soup(path))
+        records = []
+        order = 0
+        for row in self.rows(table):
+            if self.skip_row(row):
+                continue
+            order += 1
+            cells = self.cells(row)
+            records.append({
+                "id": f"{self.cik}_{self.stmt}_{order:02d}",
+                "stmt": self.stmt,
+                "order": order,
+                "level": self.level_of(cells),
+                "label": self.label_of(cells),
+                "tag": self.tag_of(cells),
+                "has_value": self.has_value(cells),
+            })
+        if not records:
+            raise ValueError(f"no tagged data rows extracted from {path}")
+        return records
+
+    def dumps(self, records: list[dict]) -> str:
+        """Compact JSON, no decorative whitespace (project convention)."""
+        import json
+        return json.dumps(records, ensure_ascii=False, separators=(",", ":"))
+
+    # -- per-filer hooks -----------------------------------------------------
+
+    def label_of(self, cells) -> str:
+        """The row's label text.
+
+        Default: the first non-empty cell's text (the label cell in
+        these reports; footnote markers like [1] stay in).  Override if
+        a filer puts the label somewhere else.
         """
-        cells = row.find_all(["td", "th"]) or [row]
-        return [self.clean(c.get_text()) for c in cells]
-
-    def label_of(self, cells: list[str]) -> str:
-        """Picks the line label from the cells. Default: the first cell."""
-        return cells[0] if cells else ""
-
-    def tag_of(self, cells: list[str]) -> str:
-        """Picks the XBRL concept tag from the cells.
-
-        Default: the last cell that contains a ":", matching us-gaap: and
-        company tags like cisco:. Override if the tag lives elsewhere.
-        """
-        for text in reversed(cells):
-            if ":" in text:
+        for cell in cells:
+            text = _clean(cell.get_text())
+            if text:
                 return text
         return ""
 
-    def level_of(self, cells: list[str]) -> int:
-        """Returns the hierarchy depth of the row. Default: 0 (flat).
+    def tag_of(self, cells) -> str:
+        """The concept reference for the row, verbatim.
 
-        Override to encode the filer's indentation / nesting. Depth is the
-        strongest free signal for the downstream reclassification: a child
-        row inherits the family of the row above it.
+        Default: the first Show.showAR("...") argument found anywhere in
+        the row -- the anchor lives in the label cell in these reports,
+        but searching the row is robust to a different cell.  Override
+        if a filer carries the concept elsewhere.
         """
+        for cell in cells:
+            m = _TAG_RE.search(cell.get_text())
+            if not m:
+                m = _TAG_RE.search(str(cell))
+            if m:
+                return m.group(1)
+        return ""
+
+    def level_of(self, cells) -> int:
+        """Grouping depth of the row.
+
+        Default: 0 for subtotal / heading rows (label rendered bold),
+        1 for ordinary line items.  These files carry no indentation,
+        so bold is the only depth signal the markup offers.  Override
+        with a filer's own indentation scheme when you have one.
+        """
+        for cell in cells:
+            text = _clean(cell.get_text())
+            if not text:
+                continue
+            return 0 if cell.find(["strong", "b"]) else 1
         return 0
 
-    def has_value(self, cells: list[str]) -> bool:
-        """True when the row carries at least one period value.
+    def has_value(self, cells) -> bool:
+        """Whether the row carried numeric period values.
 
-        Default: some cell beyond the label that is non-blank and not the
-        tag. Override if a filer's value cells are in a fixed column range.
+        Default: any cell (other than the label's) that is (part of) a
+        number -- so subtotal, component and note rows are all told
+        apart at a glance.  Override if a filer's "value" columns live
+        in fixed positions.
         """
-        tag = self.tag_of(cells)
-        for text in cells[1:]:
-            if text and text != tag:
+        seen_label = False
+        for cell in cells:
+            text = _clean(cell.get_text())
+            if not text:
+                continue
+            if not seen_label and not _TAG_RE.search(str(cell)):
+                seen_label = True
+            elif _VALUE_RE.match(text):
                 return True
         return False
 
-    # -------------------------------------------------------------------------
-    # Shared pipeline -- normally left as-is
-    # -------------------------------------------------------------------------
 
-    def load(self, path: Path) -> str:
-        """Reads the R-file and returns its decoded text."""
-        return path.read_text(encoding="utf-8")
+# ---------------------------------------------------------------------------
+# Finding and running the conversion.
+# ---------------------------------------------------------------------------
 
-    def make_soup(self, html: str) -> BeautifulSoup:
-        """Parses the HTML into a BeautifulSoup tree."""
-        return BeautifulSoup(html, PARSER)
+def find_filing(cik: str, stmt: str) -> Path:
+    """Locate the statement's html file under DATA_DIR.
 
-    def clean(self, text: str) -> str:
-        """Normalises a cell: trims and collapses runs of whitespace to one."""
-        return " ".join(text.split())
-
-    def build_row(self, base: str, order: int, cells: list[str]) -> dict:
-        """Assembles one output record from a parsed row's cells.
-
-        This is the single place the record contract is built: the layout
-        hooks above supply its values. Change the shape here, everywhere.
-        """
-        return {
-            "id": f"{base}_{order:03d}",
-            "stmt": self.stmt,
-            "order": order,
-            "level": self.level_of(cells),
-            "label": self.label_of(cells),
-            "tag": self.tag_of(cells),
-            "has_value": self.has_value(cells),
-        }
-
-    def convert(self, path: Path, stmt: str | None = None) -> list[dict]:
-        """Runs the whole pipeline on one R-file and returns the records."""
-        if stmt is not None:
-            self.stmt = stmt
-        soup = self.make_soup(self.load(path))
-        table = self.main_table(soup)
-        if table is None:
-            raise SystemExit(f"no <table> found in {path}")
-        rows = [r for r in table.find_all("tr") if not self.skip_row(r)]
-        base = path.stem
-        records = []
-        for order, row in enumerate(rows):
-            records.append(self.build_row(base, order, self.split_row(row)))
-        return records
-
-    @staticmethod
-    def dumps(records: list[dict]) -> str:
-        """Serialises records to compact JSON (no decorative whitespace)."""
-        return json.dumps(records, ensure_ascii=False, separators=(",", ":"))
+    Conventions: CIK is 10 digits zero-padded in filenames; if several
+    filings match (multiple 10-K dates), the most recent wins.
+    Raises with the list of available CIKs when none matches.
+    """
+    cik = cik if not cik.isdigit() else cik.zfill(10)
+    hits = sorted(DATA_DIR.glob(f"{cik}_*_10k_{stmt}.htm"))
+    if not hits:
+        known = sorted(
+            {p.name.split("_")[0] for p in DATA_DIR.glob("*_10k_*.htm")}
+        )
+        sys.exit(
+            f"convert: no {stmt} filing for cik {cik} in {DATA_DIR}\n"
+            f"  available: {', '.join(known) or '(none)'}"
+        )
+    return hits[-1]
 
 
-# =============================================================================
-# Command-line entry point
-# =============================================================================
+def convert(
+    cik: str,
+    stmt: str,
+    converter: Converter | None = None,
+    out: Path | None = None,
+) -> Path:
+    """Full automatic pass: locate the file, extract records, write JSON.
+
+    cik     -- CIK, any width (34088 or 0000034088).
+    stmt    -- "is", "bs" or "cf".
+    converter -- a (possibly subclassed) Converter; defaults to one
+                 built for this cik + stmt.  Pass a subclass instance
+                 to override hooks for a differently laid-out filer.
+    out     -- output json path; default LLM_DIR/{cik}_{stmt}.json.
+
+    Returns the path written, so a pipeline can chain on it.
+    """
+    if converter is None:
+        converter = Converter(stmt, cik)
+    else:
+        converter.stmt = stmt
+        converter.cik = cik.lstrip("0") or cik
+    path = find_filing(cik, stmt)
+    records = converter.convert(path)
+    if out is None:
+        out = LLM_DIR / f"{converter.cik}_{stmt}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(converter.dumps(records), encoding="utf-8")
+    return out
 
 
-def main(argv: list[str] | None = None) -> None:
-    """Convert one R-file to JSON (next to it, or to --out)."""
+def main(argv=None) -> None:
+    """CLI entry point: convert.py <cik> <stmt> [--out PATH]."""
     parser = argparse.ArgumentParser(
-        description="Convert an EDGAR R-file .htm into line-record JSON."
+        description="Convert a 10-K statement R-file into LLM-ready JSON."
     )
-    parser.add_argument("input", type=Path, help="path to the R-file .htm")
+    parser.add_argument("cik", help="company CIK, e.g. 0000034088 or 34088")
+    parser.add_argument("stmt", choices=STATEMENTS, help="statement")
     parser.add_argument(
-        "--stmt", default="generic", help="is | bs | cf | custom"
+        "--out", type=Path, default=None,
+        help=f"output .json path (default {LLM_DIR}/<cik>_<stmt>.json)"
     )
-    parser.add_argument(
-        "--out", type=Path, default=None, help="output .json path"
-    )
-    args = parser.parse_args(argv)
-
-    records = Converter(stmt=args.stmt).convert(args.input)
-    out = args.out or args.input.with_suffix(".json")
-    out.write_text(Converter.dumps(records) + "\n", encoding="utf-8")
-    print(f"{args.input} -> {out}  ({len(records)} rows)")
+    ns = parser.parse_args(argv)
+    path = convert(ns.cik, ns.stmt, out=ns.out)
+    print(path)
 
 
 if __name__ == "__main__":
