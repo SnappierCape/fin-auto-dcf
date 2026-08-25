@@ -34,7 +34,7 @@ Meaning:
 Numbers are not parsed into the records: classification is driven by
 label + hierarchy + tag, and a validator does the arithmetic later.
 
-Usage (from the repo root; CWD-independent for data and output dirs)::
+Usage (from the repo root; CWD-independent for data and output dirs):
 
     uv run src/llm/convert.py 0000034088 bs                 # defaults
     uv run src/llm/convert.py 789019 cf --out /tmp/m.csv..  # explicit out
@@ -74,6 +74,7 @@ PARSER = "lxml"
 
 LLM_DIR = Path(__file__).resolve().parent
 DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"  # filing html files
+OUTPUT_DIR = LLM_DIR.parents[1] / "data" / "converted"
 STATEMENTS = ("is", "bs", "cf")  # valid statement names
 
 # The concept reference a row's "Details" anchor points at. It is the
@@ -267,9 +268,9 @@ class Converter:
                 return True
         return False
 
-# ---------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Finding and running the conversion.
-# ---------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def find_filing(cik: str, stmt: str) -> Path:
     """Locate the statement's html file under DATA_DIR.
@@ -315,11 +316,11 @@ def convert(
     path = find_filing(cik, stmt)
     records = converter.convert(path)
     if out is None:
-        out = LLM_DIR / f"{converter.cik}_{stmt}.json"
+        padded_cik = converter.cik.zfill(10)
+        out = OUTPUT_DIR / f"{padded_cik}_{stmt}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(converter.dumps(records), encoding="utf-8")
     return out
-
 
 def main(argv=None) -> None:
     """CLI entry point: convert.py <cik> <stmt> [--out PATH]."""
@@ -330,7 +331,7 @@ def main(argv=None) -> None:
     parser.add_argument("stmt", choices=STATEMENTS, help="statement")
     parser.add_argument(
         "--out", type=Path, default=None,
-        help=f"output .json path (default {LLM_DIR}/<cik>_<stmt>.json)"
+        help=f"output .json path (default {OUTPUT_DIR}/<padded_cik>_<stmt>.json)"
     )
     ns = parser.parse_args(argv)
     path = convert(ns.cik, ns.stmt, out=ns.out)
