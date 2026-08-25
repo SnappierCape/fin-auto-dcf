@@ -1,0 +1,42 @@
+{
+    "cik": "0001045810",
+    "issuer": "NVIDIA CORP",
+    "tickers": [
+        "NVDA"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-25",
+    "report_date": "2026-01-25",
+    "accession": "0001045810-26-000021",
+    "primary_document": "nvda-20260125.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+    "sha256": "73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b",
+    "bytes": 1967816,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statements of Income",
+            "local_file": "0001045810_2026-01-25_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R3.htm",
+            "sha256": "09b4d06ac2f8d95f74ddc8ebaa86d29772bb0074610d33fa1cf7a6b05c97f0af",
+            "bytes": 105628
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001045810_2026-01-25_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R5.htm",
+            "sha256": "304309cb19c0e19df6971cb0475161f5b90d595c5dcca8de517865ed630ea6e2",
+            "bytes": 115883
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001045810_2026-01-25_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R9.htm",
+            "sha256": "a693ff13a72b24f6e00f0b8c64ad0404735cf995fa7537a019ab49303461ca5d",
+            "bytes": 101853
+        }
+    },
+    "downloaded_at": "2026-08-25T08:27:26Z"
+}
