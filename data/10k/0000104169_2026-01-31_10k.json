@@ -1,0 +1,42 @@
+{
+    "cik": "0000104169",
+    "issuer": "Walmart Inc.",
+    "tickers": [
+        "WMT"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-03-13",
+    "report_date": "2026-01-31",
+    "accession": "0000104169-26-000055",
+    "primary_document": "wmt-20260131.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/wmt-20260131.htm",
+    "sha256": "276a6accff6066f00342ba03b390c6c2bd51aa7246f0346df22df0b839a5bf5c",
+    "bytes": 2323981,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statements of Income",
+            "local_file": "0000104169_2026-01-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/R3.htm",
+            "sha256": "8496a3ec6b44c73479857d93ad1b0da1193706dfacb176c39095c81e0b42a2bd",
+            "bytes": 125496
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000104169_2026-01-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/R5.htm",
+            "sha256": "fc98f266cfaf4ac2e4a73d40208f53129cd553e1a340741db293f73f2bff1cd9",
+            "bytes": 134180
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000104169_2026-01-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/R8.htm",
+            "sha256": "6a184253ec9eea46bd725cab5b71ed0734cd544fd6b26e0b91fc3414e8a6b2da",
+            "bytes": 93375
+        }
+    },
+    "downloaded_at": "2026-08-23T16:07:43Z"
+}

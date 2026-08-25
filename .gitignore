@@ -7,10 +7,6 @@ build/
 dist/
 uv.lock
 
-# Generated artifacts & raw data dumps (CONTRIBUTING.md: no data/ dumps)
-data/10k/
-output/
-
 # Editor / OS noise
 .DS_Store
 .idea/
