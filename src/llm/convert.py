@@ -62,10 +62,6 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-# bs4 backend: lxml is lenient about EDGAR's mixed/incomplete markup;
-# swap for the stdlib "html.parser" if lxml must never appear.
-PARSER = "lxml"
-
 
 # =============================================================================
 # Paths and constants
@@ -73,9 +69,13 @@ PARSER = "lxml"
 
 
 LLM_DIR = Path(__file__).resolve().parent
-DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"  # filing html files
+DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"
 OUTPUT_DIR = LLM_DIR.parents[1] / "data" / "converted"
 STATEMENTS = ("is", "bs", "cf")  # valid statement names
+
+# -----------------------------------------------------------------------------
+# Regex bundle to extract values from .htm files
+# -----------------------------------------------------------------------------
 
 # The concept reference a row's "Details" anchor points at. It is the
 # only machine-stable identity a row has; it is what we audit.
@@ -88,10 +88,18 @@ _VALUE_RE = re.compile(r"^\s*[(]?\s?[$€£]?\s?[\d][\d,\.\s%]*\s*$")
 # A whitespace character lxml decodes from entities such as &#160; .
 _WS_RE = re.compile(r"[\s\xa0]+")
 
-
 def _clean(text: str) -> str:
-    """Collapses all whitespaces (incl. nbsp) to single spaces, trim ends."""
+    """Collapses all whitespaces to single spaces, trim ends."""
     return _WS_RE.sub(" ", text).strip()
+
+# -----------------------------------------------------------------------------
+# Parser settings
+# -----------------------------------------------------------------------------
+
+# bs4 backend: lxml is lenient about EDGAR's mixed/incomplete markup;
+# swap for the stdlib "html.parser" if lxml must never appear.
+PARSER = "lxml"
+ENCODING = "utf-8"
 
 
 # =============================================================================
@@ -100,47 +108,34 @@ def _clean(text: str) -> str:
 
 
 class Converter:
-    """One 10-K statement R-file -> a flat JSON of records (see module doc).
+    """One R-file -> a flat JSON of records.
 
     The pipeline is fixed: find the table, walk its rows, extract fields.
-    The hooks each answer one question with a per-filer-overridable
-    default; override only what differs on the new filer.
-
-    Subclass and pass to convert() to adapt, e.g.:
-
-        class Msc(Converter):
-            def has_value(self, cells): ...
-        records = convert("789019", "is", converter=Msc("is"))
+    The hooks each answer one question.
     """
 
-    #: statement name, stamped into every record (is / bs / cf).
-    stmt: str
-    #: CIK, stripped of leading zeros (34088, not 0000034088).
-    cik: str
+    stmt: str  # possible statement names
+    cik: str  # CIK stripped of leading zeros
 
     def __init__(self, stmt: str, cik: str = "") -> None:
         if stmt not in STATEMENTS:
             sys.exit(f"convert: unknown statement {stmt!r} (want is|bs|cf)")
         self.stmt = stmt
         self.cik = cik.lstrip("0") or cik
-
-    # -------------------------------------------------------------------------
-    # Fixed pipeline
-    # -------------------------------------------------------------------------
     
     @staticmethod
     def soup(path: Path) -> BeautifulSoup:
-        """Parses the .htm file into a BeautifulSoup tree (lxml backend).
+        """Parses the .htm file into a BeautifulSoup tree.
         
         Ingests the raw .htm file as a pathlib Path object and extracts the raw
-        utf-8 charachters to trat it as simple text to parse.git add
+        utf-8 charachters to treat it as simple text to parse.
         """
-        return BeautifulSoup(path.read_text(encoding="utf-8"), PARSER)
+        return BeautifulSoup(path.read_text(encoding=ENCODING), PARSER)
 
     def main_table(self, soup: BeautifulSoup):  # NOTE: Brittle.
         """The statement's table.
 
-        Default: the single <table class="report"> the R-file builder
+        The single <table class="report"> the R-file builder
         emits; fall back to the first row-bearing table.  Override for
         a layout where the statement table is something else.
         """
@@ -167,7 +162,7 @@ class Converter:
     def skip_row(self, row) -> bool:
         """Drops a row.
 
-        Default: rows without a concept reference -- the two header
+        Rows without a concept reference ─ the two header
         rows and any layout row never got a tag.  A data row we cannot
         tag is one we cannot audit, so it is dropped rather than
         guessed at.
@@ -175,7 +170,7 @@ class Converter:
         return not self.tag_of(self.cells(row))
 
     def cells(self, row) -> list:
-        """A row's cells as a list of BeautifulSoup elements."""
+        """Returns a row's cells as a list of BeautifulSoup elements."""
         return row.find_all(["td", "th"], recursive=False)
 
     def convert(self, path: Path) -> list[dict]:
@@ -208,9 +203,8 @@ class Converter:
     def label_of(self, cells) -> str:  # NOTE: Brittle.
         """The row's label value.
 
-        Default: the first non-empty cell in the row (the label cell in
-        these reports; footnote markers like [1] stay in).  Override if
-        a filer puts the label somewhere else.
+        The first non-empty cell in the row (the label cell in
+        these reports; footnote markers like [1] stay in).
         """
         for cell in cells:
             text = _clean(cell.get_text())  # remove whitespaces
@@ -221,10 +215,9 @@ class Converter:
     def tag_of(self, cells) -> str:  # NOTE: Brittle.
         """The concept reference for the row, verbatim.
 
-        Default: the first Show.showAR("...") argument found anywhere in
-        the row -- the anchor lives in the label cell in these reports,
-        but searching the row is robust to a different cell.  Override
-        if a filer carries the concept elsewhere.
+        The first Show.showAR("...") argument found anywhere in
+        the row ─ the anchor lives in the label cell in these reports,
+        but searching the row is robust to a different cell.
         """
         for cell in cells:
             m = _TAG_RE.search(cell.get_text())  # search visible text
@@ -237,10 +230,9 @@ class Converter:
     def level_of(self, cells) -> int:  # NOTE: Brittle.
         """Grouping depth of the row.
 
-        Default: 0 for subtotal / heading rows (label rendered bold),
+        0 for subtotal / heading rows (label rendered bold),
         1 for ordinary line items.  These files carry no indentation,
-        so bold is the only depth signal the markup offers.  Override
-        with a filer's own indentation scheme when you have one.
+        so bold is the only depth signal the markup offers.
         """
         for cell in cells:
             text = _clean(cell.get_text())
@@ -252,10 +244,9 @@ class Converter:
     def has_value(self, cells) -> bool:
         """Whether the row carried numeric period values.
 
-        Default: any cell (other than the label's) that is (part of) a
-        number -- so subtotal, component and note rows are all told
-        apart at a glance.  Override if a filer's "value" columns live
-        in fixed positions.
+        Any cell (other than the label's) that is (part of) a
+        number ─ so subtotal, component and note rows are all told
+        apart at a glance.
         """
         seen_label = False
         for cell in cells:
@@ -269,7 +260,7 @@ class Converter:
         return False
 
 # -----------------------------------------------------------------------------
-# Finding and running the conversion.
+# Finding and running the conversion
 # -----------------------------------------------------------------------------
 
 def find_filing(cik: str, stmt: str) -> Path:
