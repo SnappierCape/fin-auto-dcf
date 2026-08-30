@@ -6,8 +6,8 @@
 What this script does
 ---------------------
 Downloads the most recent annual report (10-K) of a US public company,
-plus the three statements: income statement,
-balance sheet, cash-flow statement.
+plus the three statements: income statement, balance sheet, cash-flow
+statement.
 
 It turns ONE input (the company's SEC CIK, an 8-10 digit ID - see
 https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany to look one
@@ -81,7 +81,9 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 
-# --- configuration -----------------------------------------------------------
+# =============================================================================
+# Configuration
+# =============================================================================
 
 # SEC fair-access rule: requests must carry a User-Agent identifying the
 # caller. We build it from the project name + a contact string. Override
@@ -100,7 +102,7 @@ USER_AGENT = f"fin-auto-dcf (10-K fetcher; contact: {CONTACT})"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik10}.json"
 ARCHIVE_BASE = "https://www.sec.gov/Archives/edgar/data/{cik_dir}/{acc}/"
 
-# Repo root config.
+# Repo root configuration.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = REPO_ROOT / "data" / "10k"
 
@@ -108,8 +110,9 @@ OUT_DIR = REPO_ROOT / "data" / "10k"
 MAX_ATTEMPTS = 3
 
 
-# --- tiny fetch helper -------------------------------------------------------
-
+# =============================================================================
+# Fetch helpers
+# =============================================================================
 
 def _download(url: str) -> bytes:
     """GET a URL with a compliant User-Agent, retrying on 429/5xx.
@@ -160,8 +163,9 @@ def get_json(url: str) -> dict:
     return obj
 
 
-# --- core --------------------------------------------------------------------
-
+# =============================================================================
+# Submission processing
+# =============================================================================
 
 def pick_latest_10k(recent: dict) -> tuple[int, str, str]:
     """Return the newest 10-K entry of the submissions feed.
@@ -179,59 +183,212 @@ def pick_latest_10k(recent: dict) -> tuple[int, str, str]:
     raise SystemExit("no 10-K or 10-K/A found in the recent filings feed")
 
 
-# --- statement identification (FilingSummary.xml) ----------------------------
+# =============================================================================
+# Statement identification (FilingSummary.xml)
+# =============================================================================
 
-# Anchored regexes over <ShortName>. Filers phrase the three statements
-# differently, so matching is anchored at both ends
-# - loose in the middle, exact at the
-# edges - which also rejects parentheticals, detail tables and notes.
-STATEMENT_PATTERNS: dict[str, tuple[re.Pattern, ...]] = {
-    "is": (
+# -----------------------------------------------------------------------------
+# Regex patterns for statement identification across GAAP variants
+# -----------------------------------------------------------------------------
+# Matching Mechanics:
+# 1. Anchoring: All patterns use '^' and '$' to enforce full-string matching.
+# 2. Case-Insensitivity: 're.I' matches regardless of title-case or uppercase.
+# 3. Optional groups: '(consolidated\s+)?' allows optional "Consolidated ".
+# 4. Word Alternation: Grouping tests for standard GAAP synonyms.
+STATEMENT_PATTERNS: dict[str, list[re.Pattern]] = {
+    # ── Income statement patterns ────────────────────────────────────────────
+    "is": [
+        # Matches "Statements of Income", "Statements of Operations",
+        # "Statements of Earnings", "Statement of Profit and Loss",
+        # "Results of Operations", and combined comprehensive filings,
+        # with optional date suffixes (e.g. " for the Years Ended...").
         re.compile(
-            r"^(consolidated\s+)?statements?\s+of\s+(income|operations)$",
+            r"^(consolidated\s+)?(statements?\s+of\s+|results\s+of\s+)?"
+            r"(income|operations|earnings|profit\s+and\s+loss|"
+            r"results\s+of\s+operations)"
+            r"(\s+and\s+comprehensive\s+income)?"
+            r"(\s+for\s+the\s+.*)?$",
             re.I,
         ),
-        re.compile(r"^(consolidated\s+)?income\s+statements?$", re.I),
-    ),
-    "bs": (
-        re.compile(r"^(consolidated\s+)?balance\s+sheets?$", re.I),
-    ),
-    "cf": (
-        re.compile(r"^(consolidated\s+)?cash\s+flows?\s+statements?$", re.I),
+        # Matches reverse order phrasing such as "Consolidated Income
+        # Statements" or "Operations Statement".
         re.compile(
-            r"^(consolidated\s+)?statements?\s+of\s+cash\s+flows?$",
+            r"^(consolidated\s+)?"
+            r"(income|operations|earnings|profit\s+and\s+loss)\s+"
+            r"statements?(\s+for\s+the\s+.*)?$",
             re.I,
         ),
+    ],
+    # ── Balance sheet patterns ───────────────────────────────────────────────
+    "bs": [
+        # Standard GAAP "Balance Sheet" or "Consolidated Balance Sheets".
+        re.compile(
+            r"^(consolidated\s+)?balance\s+sheets?(\s+at\s+.*)?$",
+            re.I,
+        ),
+        # GAAP / IFRS alternative title "Statements of Financial Position".
+        re.compile(
+            r"^(consolidated\s+)?(statements?\s+of\s+)?"
+            r"financial\s+position(\s+at\s+.*)?$",
+            re.I,
+        ),
+    ],
+    # ── Cash flow statement patterns ─────────────────────────────────────────
+    "cf": [
+        # Standard "Consolidated Statements of Cash Flows" (or "Cash Flow").
+        re.compile(
+            r"^(consolidated\s+)?statements?\s+of\s+cash\s+flows?"
+            r"(\s+for\s+the\s+.*)?$",
+            re.I,
+        ),
+        # Alternative phrasing "Consolidated Cash Flows Statements".
+        re.compile(
+            r"^(consolidated\s+)?cash\s+flows?\s+statements?"
+            r"(\s+for\s+the\s+.*)?$",
+            re.I,
+        ),
+    ],
+}
+
+# -----------------------------------------------------------------------------
+# Disqualification filters
+# -----------------------------------------------------------------------------
+# Evaluated using 'p.search(short_name)'. If any exclusion pattern matches
+# anywhere within the title, the candidate is discarded before scoring.
+EXCLUSION_PATTERNS: list[re.Pattern] = [
+    re.compile(r"parenthetical", re.I),  # Secondary disclosure parentheticals
+    re.compile(r"note\s+\d+", re.I),  # Footnotes and accounting policies
+    re.compile(r"schedule", re.I),  # Supplementary valuation schedules
+    re.compile(r"segment", re.I),  # Segment reporting breakdowns
+    re.compile(r"equity", re.I),  # Stockholders' equity rollforwards
+    re.compile(r"capital", re.I),  # Capital changes statements
+    re.compile(
+        r"^consolidated\s+statements?\s+of\s+comprehensive\s+income", re.I
     ),
+    re.compile(r"^consolidated\s+comprehensive\s+income", re.I),
+]
+
+# Non-statement categories in SEC EDGAR's FilingSummary.xml report bundle.
+EXCLUDED_MENU_CATEGORIES: set[str] = {
+    "notes",
+    "policies",
+    "tables",
+    "details",
+    "cover",
+}
+
+# -----------------------------------------------------------------------------
+# Content verification baseline lexicons
+# -----------------------------------------------------------------------------
+# Substrings expected inside the decoded HTML body of valid statements.
+CONTENT_ANCHORS: dict[str, list[str]] = {
+    # Income Statement: revenues, operating results, and bottom-line profit.
+    "is": [
+        "revenue",
+        "sales",
+        "operating income",
+        "operating loss",
+        "net income",
+        "net loss",
+    ],
+    # Balance Sheet: assets, liabilities, and stockholders' equity accounts.
+    "bs": [
+        "total assets",
+        "total liabilities",
+        "stockholders' equity",
+        "shareholders' equity",
+        "retained earnings",
+    ],
+    # Cash Flow: ASC 230 activity sections plus cash reconciliation.
+    "cf": [
+        "operating activities",
+        "investing activities",
+        "financing activities",
+        "cash and cash equivalents",
+    ],
 }
 
 
 def pick_statements(summary_xml: bytes) -> dict[str, dict[str, str]]:
     """Map statement kind -> {short_name, html_file} from FilingSummary.xml.
 
-    Reads the <Reports>/<Report> list (ShortName + HtmlFileName) of EDGAR's
-    iXBRL report bundle and keeps the first report whose ShortName matches
-    each statement pattern. Raises if any of the three is not identified.
+    Parses FilingSummary.xml, evaluates all reports across the three
+    statement categories (IS, BS, CF), applies exclusion filters, computes
+    candidate quality scores based on XML metadata and title matching, and
+    returns the globally highest-scoring report for each statement kind.
     """
+    # Parse the FilingSummary XML byte tree.
     try:
         root = ET.fromstring(summary_xml)
     except ET.ParseError as e:
         raise SystemExit(f"FilingSummary.xml is not valid XML: {e}") from e
 
-    matched: dict[str, dict[str, str]] = {}
+    # Dictionary accumulator: collects all scored candidate matches per kind.
+    candidates: dict[str, list[dict]] = {"is": [], "bs": [], "cf": []}
+
+    # Iterate over every <Report> node across FilingSummary.xml.
     for report in root.iter("Report"):
+        # Extract text attributes and normalize whitespace.
         short = (report.findtext("ShortName") or "").strip()
         html_file = (report.findtext("HtmlFileName") or "").strip()
+        category = (report.findtext("MenuCategory") or "").strip()
+        position = int(report.findtext("Position") or 999)
+
+        # Skip empty report entries missing required attributes.
         if not short or not html_file:
             continue
-        for kind, patterns in STATEMENT_PATTERNS.items():
-            if kind not in matched and any(p.match(short) for p in patterns):
-                matched[kind] = {"short_name": short, "html_file": html_file}
 
+        # Step 1: Disqualification check via category and substring search.
+        if category.lower() in EXCLUDED_MENU_CATEGORIES:
+            continue
+
+        if any(p.search(short) for p in EXCLUSION_PATTERNS):
+            continue
+
+        # Step 2: Statement Pattern Evaluation.
+        for kind, patterns in STATEMENT_PATTERNS.items():
+            for pattern in patterns:
+                # 'pattern.match(short)' matches from character 0 to '$'.
+                if pattern.match(short):
+                    # Base score: awarded for matching a canonical GAAP regex.
+                    score = 100
+
+                    # Metadata bonus (+50 pts): primary Statement menu tag.
+                    if category.lower() == "statements":
+                        score += 50
+
+                    # Position adjustment: prefer primary statements near top.
+                    score -= min(position, 40)
+
+                    candidates[kind].append(
+                        {
+                            "short_name": short,
+                            "html_file": html_file,
+                            "score": score,
+                            "category": category,
+                        }
+                    )
+                    break  # Matched pattern; evaluate next category.
+
+    # Step 3: Best Candidate Selection per Category.
+    matched: dict[str, dict[str, str]] = {}
+    for kind in ("is", "bs", "cf"):
+        kind_candidates = sorted(
+            candidates[kind], key=lambda x: x["score"], reverse=True
+        )
+        if kind_candidates:
+            best = kind_candidates[0]
+            matched[kind] = {
+                "short_name": best["short_name"],
+                "html_file": best["html_file"],
+            }
+
+    # Step 4: Completeness Gate.
     missing = [k for k in STATEMENT_PATTERNS if k not in matched]
     if missing:
         named = {k: v["short_name"] for k, v in matched.items()}
-        candidates = sorted(
+        # Harvest all short names in the XML bundle to print diagnosis.
+        candidates_all = sorted(
             (r.findtext("ShortName") or "").strip()
             for r in root.iter("Report")
             if (r.findtext("ShortName") or "").strip()
@@ -239,10 +396,49 @@ def pick_statements(summary_xml: bytes) -> dict[str, dict[str, str]]:
         raise SystemExit(
             f"could not identify statements {missing} in FilingSummary.xml "
             f"(matched so far: {named}). "
-            f"Available ShortNames: {candidates}"
+            f"Available ShortNames: {candidates_all}"
         )
     return matched
 
+
+# -----------------------------------------------------------------------------
+# Content verification helper
+# -----------------------------------------------------------------------------
+
+def verify_statement_content(
+    html_bytes: bytes, kind: str
+) -> tuple[bool, float, list[str]]:
+    """Verify downloaded R-file HTML contains canonical financial items.
+
+    Decodes the raw HTML table, searches for standard financial line item
+    anchors, and computes an objective confidence ratio.
+
+    Returns:
+        passed (bool): True if at least 2 expected anchors are found.
+        confidence (float): Fraction of domain anchors identified (0.0..1.0).
+        matched_anchors (list[str]): List of detected anchor keywords.
+    """
+    try:
+        # Decode HTML body into lowercase text for case-insensitive matching.
+        text = html_bytes.decode("utf-8", errors="ignore").lower()
+    except Exception:
+        return False, 0.0, []
+
+    expected = CONTENT_ANCHORS.get(kind, [])
+    if not expected:
+        return True, 1.0, []
+
+    # Detect presence of canonical anchors in the table text.
+    found = [anchor for anchor in expected if anchor in text]
+    confidence = len(found) / len(expected)
+    # Gating rule: require at least 2 distinct anchor terms to pass.
+    passed = len(found) >= 2
+    return passed, round(confidence, 2), found
+
+
+# =============================================================================
+# Main execution pipeline
+# =============================================================================
 
 def main() -> None:
     """Fetch the 10-K bundle for the CIK given as the only argument.
@@ -274,7 +470,7 @@ def main() -> None:
     # up ONE index (idx) and read every field at that index. If EDGAR ever
     # re-groups these into per-filing objects, this breaks loudly.
 
-    # 1) Find the latest 10-K -------------------------------------------------
+    # ── 1) Find the latest 10-K ──────────────────────────────────────────────
     sub = get_json(SUBMISSIONS_URL.format(cik10=cik10))
     issuer: str = sub.get("name", "<unknown>")
     tickers: str = ",".join(sub.get("tickers", []))
@@ -310,7 +506,7 @@ def main() -> None:
     print(f"primary doc  : {primary}")
     print(f"url          : {url}")
 
-    # 2) Identify the 3 statements from the report bundle ------------------
+    # ── 2) Identify the 3 statements from the report bundle ──────────────────
     summary_url = (
         ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + "FilingSummary.xml"
     )
@@ -320,7 +516,7 @@ def main() -> None:
         entry = statements[kind]
         print(f"statement    : {entry['short_name']}  -> {entry['html_file']}")
 
-    # 3) Download everything, then land it atomically in data/10k/ ---------
+    # ── 3) Download everything, then land it atomically in data/10k/ ─────────
     files: dict[str, bytes] = {f"10k_{primary}": _download(url)}
     stem = f"{cik10}_{report_date}"
     for kind in STATEMENT_PATTERNS:
@@ -343,6 +539,20 @@ def main() -> None:
         out_name = f"{stem}_10k_{kind}.htm"
         out_path = OUT_DIR / out_name
         data = files[out_name]
+
+        # Perform content verification safety check on in-memory HTML bytes.
+        passed, confidence, found_anchors = verify_statement_content(
+            data, kind
+        )
+        if not passed:
+            # Fail loudly and prevent committing invalid tables to disk.
+            raise SystemExit(
+                f"Safety check failed for {kind} ({src}): "
+                f"insufficient financial anchors found (matched: "
+                f"{found_anchors})."
+            )
+
+        # Commit verified HTML table to disk.
         out_path.write_bytes(data)
         statements_meta[kind] = {
             "source_html_file": src,
@@ -353,11 +563,17 @@ def main() -> None:
             ),
             "sha256": sha256(data).hexdigest(),
             "bytes": len(data),
+            # Record content verification confidence and anchors (D7/O6).
+            "confidence": confidence,
+            "matched_anchors": found_anchors,
         }
         print("-" * 60)
-        print(f"saved {kind:22s}: {out_path}  ({len(data):,} bytes)")
+        print(
+            f"saved {kind:22s}: {out_path}  ({len(data):,} bytes) "
+            f"[confidence: {confidence:.2f}]"
+        )
 
-    # 4) Assemble and write the source manifest (provenance record).
+    # ── 4) Assemble and write the source manifest (provenance record) ────────
     meta = {
         "cik": cik10,
         "issuer": issuer,

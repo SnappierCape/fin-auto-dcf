@@ -1,0 +1,60 @@
+{
+    "cik": "0000018230",
+    "issuer": "CATERPILLAR INC",
+    "tickers": [
+        "CAT"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-13",
+    "report_date": "2025-12-31",
+    "accession": "0000018230-26-000008",
+    "primary_document": "cat-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000008/cat-20251231.htm",
+    "sha256": "090ce2bd6d7dd1e85d4397ab152d3c3c3fb059fd4af0eb9aa979c1eb2ff92f15",
+    "bytes": 6100469,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Results of Operations for the Years Ended December 31",
+            "local_file": "0000018230_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000008/R3.htm",
+            "sha256": "f295267f919294c73674a350718fe942d87e86f0a2cb1097fa2378de2fc02d25",
+            "bytes": 115401,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Financial Position at December 31",
+            "local_file": "0000018230_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000008/R5.htm",
+            "sha256": "8dbdd555ac0008626b56ee258af25aaf961ab2f0ff8d54e15a65b31407c2df2f",
+            "bytes": 156053,
+            "confidence": 0.4,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statement of Cash Flow for the Years Ended December 31",
+            "local_file": "0000018230_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000008/R9.htm",
+            "sha256": "21264ea55240e00bc1c51bf1614ff3cf4f88e88263666665d9a7b17f4692c0cd",
+            "bytes": 111155,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-08-30T19:23:02Z"
+}
