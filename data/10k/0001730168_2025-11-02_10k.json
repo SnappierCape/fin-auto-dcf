@@ -1,0 +1,63 @@
+{
+    "cik": "0001730168",
+    "issuer": "Broadcom Inc.",
+    "tickers": [
+        "AVGO"
+    ],
+    "form": "10-K",
+    "filing_date": "2025-12-18",
+    "report_date": "2025-11-02",
+    "accession": "0001730168-25-000121",
+    "primary_document": "avgo-20251102.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/avgo-20251102.htm",
+    "sha256": "06d618a7e0bacc1d018d0ba8e473a56c5af2546c69475a883135b7b5d8fa2d32",
+    "bytes": 2700028,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0001730168_2025-11-02_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/R5.htm",
+            "sha256": "b43c2fab587667d984dce5e9e4006fd0ee87c4fbef7878073d389bbce454f0cf",
+            "bytes": 114118,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001730168_2025-11-02_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/R3.htm",
+            "sha256": "6a4061dc72df35b369101d23472801a76f52507a0dc02c15fbccb7310653e6b9",
+            "bytes": 114376,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001730168_2025-11-02_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/R7.htm",
+            "sha256": "38dba2564197dab5bbf7477327fc45aab022c6a7ade7c27b9a02743acbdc56a2",
+            "bytes": 94132,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-08-30T20:14:07Z"
+}
