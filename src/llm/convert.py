@@ -67,7 +67,6 @@ from bs4 import BeautifulSoup
 # Paths and constants
 # =============================================================================
 
-
 LLM_DIR = Path(__file__).resolve().parent
 DATA_DIR = LLM_DIR.parents[1] / "data" / "10k"
 OUTPUT_DIR = LLM_DIR.parents[1] / "data" / "converted"
@@ -105,7 +104,6 @@ ENCODING = "utf-8"
 # =============================================================================
 # Main class
 # =============================================================================
-
 
 class Converter:
     """One R-file -> a flat JSON of records.
