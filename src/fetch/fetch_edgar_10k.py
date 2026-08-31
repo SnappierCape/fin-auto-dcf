@@ -103,7 +103,7 @@ SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik10}.json"
 ARCHIVE_BASE = "https://www.sec.gov/Archives/edgar/data/{cik_dir}/{acc}/"
 
 # Repo root configuration.
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 OUT_DIR = REPO_ROOT / "data" / "10k"
 
 # How many times to retry transient failures (429, 5xx, network errors).
@@ -482,12 +482,12 @@ def main() -> None:
     filing_date = recent["filingDate"][idx]
     primary = recent.get("primaryDocument", [None] * len(recent["form"]))[idx]
 
-    print(f"issuer : {issuer}")
-    print(f"tickers : {tickers}")
-    print(f"form : {label}")
-    print(f"filing date : {filing_date}")
-    print(f"report date : {report_date}")
-    print(f"accession : {accession}")
+    print(f"issuer       : {issuer}")
+    print(f"tickers      : {tickers}")
+    print(f"form         : {label}")
+    print(f"filing date  : {filing_date}")
+    print(f"report date  : {report_date}")
+    print(f"accession    : {accession}")
 
     if not primary:
         # Fallback: ask the filing's index.json which file is the primary doc.
@@ -523,7 +523,7 @@ def main() -> None:
         out_name = f"{stem}_10k_{kind}.htm"
         src = statements[kind]["html_file"]
         target_url = ARCHIVE_BASE.format(cik_dir=cik_dir, acc=acc_dir) + src
-        print(f"downloading: {src}")
+        print(f"downloading  : {src}")
         files[out_name] = _download(target_url)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -569,7 +569,7 @@ def main() -> None:
         }
         print("-" * 60)
         print(
-            f"saved {kind:22s}: {out_path}  ({len(data):,} bytes) "
+            f"saved {kind:<6s} : {out_path}  ({len(data):,} bytes) "
             f"[confidence: {confidence:.2f}]"
         )
 

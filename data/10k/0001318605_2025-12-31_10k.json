@@ -1,0 +1,62 @@
+{
+    "cik": "0001318605",
+    "issuer": "Tesla, Inc.",
+    "tickers": [
+        "TSLA"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-01-29",
+    "report_date": "2025-12-31",
+    "accession": "0001628280-26-003952",
+    "primary_document": "tsla-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+    "sha256": "90d5d2bc4057df41c645f85dcebe575af9b0953a6a1902d189297bec17fd440a",
+    "bytes": 2391529,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0001318605_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/R5.htm",
+            "sha256": "0be1fc3996a8b56077dee803bae77a5aca711085681ccf4fadca287d25a23b0f",
+            "bytes": 136127,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001318605_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/R3.htm",
+            "sha256": "49f449d51dbb5f898c24fbf24dd351c947a52fde7e42bf99b00f7c3af6130fab",
+            "bytes": 129185,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001318605_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/R9.htm",
+            "sha256": "0db5aaf3d0fa2648c0bc40b2344a0a966294b11c8c07db402cb8cd8e87a7625f",
+            "bytes": 102831,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-08-31T10:50:30Z"
+}
