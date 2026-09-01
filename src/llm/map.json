@@ -1,0 +1,16 @@
+{
+   "mappings": [     
+      {  
+         "id": "34088_is_001",
+         "target": "income_statement.revenue",
+         "transform": "renamed",
+         "reason": "total net sales is the pipeline's revenue line"
+      },
+      {
+         "id": "34088_is_002",
+         "target": null,
+         "transform": null,
+         "reason": "no counterpart in the is buckets"
+      }
+   ]
+}

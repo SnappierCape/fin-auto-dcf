@@ -32,7 +32,7 @@ Transform is always one of the following, exactly as spelled in the pipeline's s
 
       renamed | reclassified | subtotal | other | computed | aggregated | null
 
-Guidance for choosing (the few-shot examples below are binding):
+Guidance for choosing (also look at the few-shoots below):
 
 - renamed        — the filing's item with the pipeline's canonical name, in the canonical order.
 - reclassified   — the item is reassigned into a different bucket than its naive reading suggests.
@@ -51,34 +51,28 @@ Guidance for choosing (the few-shot examples below are binding):
 5. Do not use has_value for any decision; it only records that numbers exist in the filing.
 6. Reasons are <20 words essays, concise and specific.
 
-## Canonical schema (injected by the pipeline)
-
-The pipeline injects the canonical schema here, as a JSON block, immediately before it reaches you:
-
-{{CANONICAL_SCHEMA}}
-
-Only line items present in this schema are valid target values. A line item not in the schema does not exist — mapping to one is an error.
-
-Safety rule: if the canonical schema is missing output an error and crash loadly, do not try to build the schema yourself.
-
 ## Output contract
 
-Reply with a single JSON array and nothing else — no prose, no markdown, no comments:
+Reply with a single JSON dict and nothing else — no prose, no markdown,
+no further indentation, no comments.
 
-[
-   {
-      "id": "34088_is_001",
-      "target": "income_statement.revenue",
-      "transform": "renamed",
-      "reason": "total net sales is the pipeline's revenue line"
-   },
-   {
-      "id": "34088_is_002",
-      "target": null,
-      "transform": null,
-      "reason": "no counterpart in the is buckets"
-   },
-]
+{
+   "mappings": [     
+      {  
+         "id": "34088_is_001",
+         "target": "income_statement.revenue",
+         "transform": "renamed",
+         "reason": "total net sales is the pipeline's revenue line"
+      },
+      {
+         "id": "34088_is_002",
+         "target": null,
+         "transform": null,
+         "reason": "no counterpart in the is buckets"
+      },
+      ...
+   ]
+}
 
 - Every record gets exactly one object, keyed by its id.
 - Mapped: "target" is a dotted "<bucket>.<line_item>" path from the canonical target tree, "transform" is one of the values above, "reason" is optional.
@@ -86,28 +80,6 @@ Reply with a single JSON array and nothing else — no prose, no markdown, no co
 
 ## Few-shot examples
 
-The two hand-reclassified examples below — input (converted records) and output (reclassified) — are part of this contract and give you real-world human-made mapping decisions. Follow their mapping style, their transform choices, their reason style, and their output shape exactly.
+The two hand-reclassified examples below — input (converted records) and output (mapped json) — are part of this contract and give you real-world human-made mapping decisions. Follow their mapping style, their transform choices, their reason style, and their output shape exactly.
 
-### Example 1 (COMPANY ─ STATEMENT)
-
-**Input — 10-k extracted records:**
-
-```json
-```
-
-**Output — reclassified:**
-
-```json
-```
-
-### Example 2 (COMPANY ─ STATEMENT)
-
-**Input — 10-k extracted records:**
-
-```json
-```
-
-**Output — reclassified:**
-
-```json
-```
+<start_few_shots>

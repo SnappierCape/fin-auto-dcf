@@ -1,0 +1,1 @@
+print('{\n  "34088_is_01": {\n    "target": null,\n    "transform": null,\n    "reason": "section heading, no canonical line item"\n  },\n  "34088_is_02": {\n    "target": "income_statement.revenue",\n    "transform": "renamed",\n    "reason": "total revenues is the pipeline\'s revenue line"\n  },\n  "34088_is_03": {\n')
