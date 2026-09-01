@@ -39,7 +39,7 @@ Guidance for choosing (also look at the few-shoots below):
 - other          — the row is folded into the bucket's residual "other" line.
 - subtotal       — the row is a total/subtotal of other mapped rows.
 - computed       — the value is derived, not reported directly in the original statement (e.g. EPS, total interest-bearing debt).
-- aggregated     ─ 2 or more valued from the filing are summed together in the canonical schema.
+- aggregated     ─ 2 or more values from the filing are summed together in the same item in the canonical schema.
 - null           ─ there is no counterpart for this item.
 
 ## Decision rules (highest priority first)
@@ -74,12 +74,12 @@ no further indentation, no comments.
    ]
 }
 
-- Every record gets exactly one object, keyed by its id.
+- Every record gets exactly one object, identified by its id.
 - Mapped: "target" is a dotted "<bucket>.<line_item>" path from the canonical target tree, "transform" is one of the values above, "reason" is optional.
 - Unmapped: "target" is null, "transform" is null, and "reason" is mandatory.
 
 ## Few-shot examples
 
-The two hand-reclassified examples below — input (converted records) and output (mapped json) — are part of this contract and give you real-world human-made mapping decisions. Follow their mapping style, their transform choices, their reason style, and their output shape exactly.
+The 3 hand-reclassified examples below — input (converted records) and output (mapped json) — are part of this contract and give you real-world human-made mapping decisions. Follow their mapping style, their transform choices, their reason style, and their output shape exactly.
 
 <start_few_shots>
