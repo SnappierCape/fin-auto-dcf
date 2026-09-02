@@ -19,7 +19,7 @@
             "cogs_incl_da":{"raw_key":"us-gaap:CostOfGoodsAndServicesSold","value":400,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
             "cogs_excl_da":{"raw_key":"us-gaap:CostOfGoodsAndServicesSoldExcludingD&A","value":320,"transform":"renamed","provenance":"10-K, note 2 segment/COGS detail"},
             "d_a":{"raw_key":"us-gaap:DepreciationAmortizationAndAccretionNet","value":80,"transform":"renamed","provenance":"10-K, cash flow statement + note 2"},
-            "other_cost_of_revenue":{"raw_key":null,"value":0,"transform":null,"provenance":null},
+            "other_cogs":{"raw_key":null,"value":0,"transform":null,"provenance":null},
             "gross_profit":{"raw_key":null,"value":600,"transform":"subtotal","provenance":null},
             "r_d":{"raw_key":"us-gaap:ResearchAndDevelopmentExpenseExcludingD&A","value":150,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
             "s_g_a":{"raw_key":"us-gaap:SellingAndMarketingExpense","value":200,"transform":"renamed","provenance":"10-K, consolidated statement of operations"},
