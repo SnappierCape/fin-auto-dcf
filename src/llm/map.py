@@ -210,6 +210,9 @@ def build_few_shots_block(examples: list[tuple[str, list[dict], list[dict]]]) ->
             f"```json\n{output_json}\n\n```"
         )
     
+    # Signal the end of the "few-shots" section.
+    blocks.append(f"<end_of_examples>\n\n")
+    
     # Join blocks together in a single markdown text.
     return "\n\n".join(blocks) + "\n"
 
@@ -234,7 +237,7 @@ def build_system_prompt() -> str:
         )
     
     # Extract everything before the anchor.
-    head, _tail = text.split(FEW_SHOT_ANCHOR, 1)
+    head, _tail = text.split(FEW_SHOT_ANCHOR, maxsplit=1)
     
     # Return the head plus the few-shots block in a single string.
     return head + build_few_shots_block(load_mapped_examples())
