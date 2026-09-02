@@ -4,28 +4,28 @@
 """Maps one converted statement into the canonical schema's item names.
 
 Reads a record array from "convert.py" ("data/converted/"), pairs it with
-the "prompt.md" system prompt, and asks a local Ollama "/api/chat"
+the "prompt.md" system prompt, injects 3 hand-made example mappings into
+the system prompt, and asks a local Ollama "/api/chat"
 endpoint (plain HTTP, stdlib "urllib", no dependencies) for one thing
 only: a mapping of each raw line to a canonical target.
 
-The model uses the four-field contract defined in "src/llm/map.json" and
+The model uses the four-field contract defined in "src/llm/prompt.md" and
 links every item using the "id" key from the input file:
 
-    id        ─ echo of the input record's id
+    id        ─ unique identifier for each input item
     target    ─ "<bucket>.<line_item>" for mapped lines, else null
     transform ─ the transformation applied to the item
     reason    ─ a short reason; mandatory when the line is unmapped
 
-The model never sees or prints a number.  When several raw items together
+The LLM never sees or prints a number.  When several raw items together
 form one canonical item, it points them all at the same target; the code
-then groups them deterministically.  It is a mapper, not a calculator.
+then sums them deterministically.  It is a mapper, not a calculator.
 
 The canonical schema itself never enters the prompt.  The model calibrates
-from hand-made converted->mapped examples injected into "prompt.md" at
-runtime: each input comes from "data/example_converted/" and each output
-from that company's map in "data/golden/".
+from hand-made converted --> mapped examples injected into "prompt.md" at
+runtime: each example comes from "data/example_converted/".
 
-Every input record must be answered exactly once; duplicate, missing, or
+Every input item must be answered exactly once; duplicate, missing, or
 invented ids (or a wrong field shape) abort the run loudly - nothing is
 dropped or silently accepted.  Classification is deterministic work, so the
 call runs at temperature 0 and asks Ollama for JSON-only output.
@@ -106,6 +106,8 @@ def load_records(path: Path) -> list[dict]:
         raw = json.loads(path.read_text(encoding=ENCODING))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"cannot read records from {path}: {exc}") from exc
+    
+    # The converted file has to be a list at the first level.
     if not isinstance(raw, list) or not raw:
         raise ValueError(f"{path} must be a non-empty JSON array")
 
@@ -116,7 +118,7 @@ def load_records(path: Path) -> list[dict]:
         # Check in the dict has all the 7 attributes.
         if not isinstance(rec, dict) or set(rec) != set(INPUT_KEYS):
             
-            # Fallback the the string name of the data type (str | int | list | etc...)
+            # Fallback to the string name of the data type (str | int | list | etc...)
             keys = set(rec) if isinstance(rec, dict) else type(rec).__name__
             raise ValueError(
                 f"{path}[{i}]: record must have exactly the fields "
@@ -129,6 +131,7 @@ def load_records(path: Path) -> list[dict]:
         if rec_id in seen:
             raise ValueError(f"{path}[{i}]: duplicate id {rec_id!r}")
         seen.add(rec_id)
+        
     return raw
 
 
@@ -180,9 +183,11 @@ def build_few_shots_block(examples: list[tuple[str, list[dict], list[dict]]]) ->
     """Renders the "## Few-shot examples" section of the system prompt.
 
     Mirrors the hand-crafted structure in "prompt.md": one
-    "### Example N (COMPANY ─ STATEMENT)" block per pair, each with an
+    "### Example N (COMPANY)" block per pair, each with an
     "Input" fence (the converted records) and an "Output" fence (the
     4-field map).
+    
+    The block gets plugged in below the "<start_few_shots>".
     """
     if not examples:
         raise ValueError(f"Few-shot examples not found.")
