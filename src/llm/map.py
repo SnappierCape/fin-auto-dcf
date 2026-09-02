@@ -79,6 +79,47 @@ MAP_KEYS = ("id", "target", "transform", "reason")
 # The 7 attributes that "convert.py" specifies for each financial item.
 INPUT_KEYS = ("id", "stmt", "order", "level", "label", "tag", "has_value")
 
+# The exact structure of the Ollama response, not just a generic json.
+# The following MAP_SCHEMA enforces this exact format in the Ollama output:
+#
+#   {
+#      "mappings": [     
+#         {  
+#            "id": "34088_is_001",
+#            "target": "income_statement.revenue",
+#            "transform": "renamed",
+#            "reason": "total net sales is the pipeline's revenue line"
+#         },
+#         {
+#            "id": "34088_is_002",
+#            "target": null,
+#            "transform": null,
+#            "reason": "no counterpart in the is buckets"
+#         },
+#         ...
+#      ]
+#   }
+#
+MAP_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "mappings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "target": {"type": ["string", "null"]},
+                    "transform": {"type": ["string", "null"]},
+                    "reason": {"type": ["string", "null"]},
+                },
+                "required": ["id", "target", "transform", "reason"],
+            },
+        }
+    },
+    "required": ["mappings"],
+}
+
 
 # =============================================================================
 # Input loading and few-shot assembly
@@ -245,35 +286,38 @@ def build_system_prompt() -> str:
 
 def call_ollama(
     system_prompt: str,
-    records: list[dict],
+    converted_input: list[dict],
     url: str,
     model: str,
 ) -> dict:
-    """Posts the chat payload and returns the server's JSON response.
+    """Calls Ollama, sends the message, and collects the JSON response.
 
-    One statement per call, non-streaming, "format": "json" so the reply
-    is structurally valid JSON, "temperature 0" because this is a lookup,
+    One statement per call, non-streaming, "format": MAP_SCHEMA so the reply
+    has the expected structure, "temperature 0" because this is a lookup,
     not a generation.  "keep_alive" keeps the model warm when a batch of
     statements runs back to back.
     """
     payload = json.dumps({
         "model": model,
-        "stream": False,  # avoid unnecessary streaming output
-        "format": "json",
+        "stream": False,  # avoid unnecessary reasoning output
+        "format": MAP_SCHEMA,
         "keep_alive": KEEP_ALIVE,
         "options": {"temperature": 0},
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": json.dumps(records, ensure_ascii=False)},
+            {
+                "role": "user",
+                "content": json.dumps(converted_input, ensure_ascii=False)
+            },
         ],
     }).encode(ENCODING)
     
-    # The actual ollama call.
+    # Http request metadata.
     request = urllib.request.Request(
-        url.rstrip("/") + "/api/chat",
+        url.rstrip("/") + "/api/chat",  # build the "http://127.0.0.1:11434/api/chat" url
         data=payload,
-        headers={"Content-Type": "application/json"},
-        method="POST",
+        headers={"Content-Type": "application/json"},  # inform Ollama that the input is json
+        method="POST",  # explixitly set HTTP for intake
     )
     
     try:
@@ -308,8 +352,8 @@ def parse_response(body: dict) -> list[dict]:
     Enforces the completed-generation markers from the API contract ("done"
     true, "done_reason" "stop"), then parses "message.content" as JSON.
     
-    A non-list payload or unparsable content is reported with an excerpt
-    so the model's exact reply is visible in the log.
+    The output is standardized as a flat list of dicts, the extra "mappings" key
+    is removed.
     """
     # Check that the model has actually finished reasoning and outputting.
     if body.get("done") is not True or body.get("done_reason") != "stop":
@@ -319,31 +363,49 @@ def parse_response(body: dict) -> list[dict]:
             f"done_reason={body.get('done_reason')!r}"
         )
 
+    # ── Ollama output contract ───────────────────────────────────────────────
+    # Ollama outputs a json-like payload with this structure:
+    #
+    #   {
+    #   "model": "qwen3.8:27b-agent",
+    #   "created_at": "2026-09-02T14:29:00Z",
+    #   "message": {
+    #       "role": "assistant",
+    #       "content": "{\n  \"mappings\": [\n    {\n      \"id\": \"34088_is_01\",\n      \"target\": null,\n      \"transform\": null,\n      \"reason\": \"section heading\"\n    }\n  ]\n}"
+    #   },
+    #   "done_reason": "stop",
+    #   "done": true
+    #   }
+    #
+    # We are interested in the "message.content" value.
+    
     message = body.get("message")
     
     # Check that the response is a dict.
     if not isinstance(message, dict):
-        raise RuntimeError(f"response has no 'message' object: {body!r}")
+        raise RuntimeError(f"message must be 'dict', received: {body!r}")
     
     content = message.get("content")
     
     # Check if the "content" is a list or try to extract from json.
     if isinstance(content, list):
-        parsed = content
-    else:
-        if not isinstance(content, str):
-            raise RuntimeError(f"message.content is not set: {message!r}")
-        try:
-            parsed = json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise RuntimeError(
-                f"model reply is not valid JSON: {content[:300]!r}"
-            ) from exc
+        raise RuntimeError(f"content is 'list', should be 'dict'")
+    
+    # Check if the JSOn is ready to be parsed.
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(
+            f"model reply is not valid JSON: {content[:300]!r}"
+        ) from exc
             
     # ── Normalize dict into list ─────────────────────────────────────────────
     # The LLM likes to create a dict at the first level, even if prompted to
     # create a list of dicts.  In particular, it ofter creates a "mappings" key
     # and place the list of dicts from the output contract inside that key.
+    #
+    # For this reason, instead of fighting it, we decided to force the
+    # "mappings" key.
     #
     #   {
     #       "mappings": [
@@ -366,7 +428,7 @@ def parse_response(body: dict) -> list[dict]:
 
     if isinstance(parsed, dict):
         
-        # Case A (most common): Everything under "mappings".
+        # Case A: Everything under "mappings".
         for key in ("mappings", "records", "decisions", "data", "results"):
             if isinstance(parsed.get(key), list):
                 parsed = parsed[key]  # we extract the inner list of dicts
@@ -374,7 +436,8 @@ def parse_response(body: dict) -> list[dict]:
             
         else:
             
-            # Case B: Keyed by ID.
+            # Case B: Keyed by ID -- this should not happen since MAP_SCHEMA
+            # is enforced.
             if all(isinstance(v, dict) for v in parsed.values()):
                 normalized = []
                 for k, v in parsed.items():
@@ -383,6 +446,7 @@ def parse_response(body: dict) -> list[dict]:
                     normalized.append(item)
                 parsed = normalized
     
+    # Check if the inner structure is a list.
     if not isinstance(parsed, list):
         raise RuntimeError(
             f"model reply is a JSON {type(parsed).__name__}, "
@@ -411,8 +475,8 @@ def validate_decisions(records: list[dict], decisions: list[dict]) -> dict[str, 
             dec_id = decision.get("id", "<missing id>")
         else:
             # Create a developer-friendly printable string of the decision of
-            # max 40 charachters.
-            dec_id = repr(decision)[:40]
+            # max 80 charachters.
+            dec_id = repr(decision)[:80]
         problems.append(f"{dec_id}: {reason}")
 
     # ── Validate decisions ───────────────────────────────────────────────────
@@ -433,10 +497,12 @@ def validate_decisions(records: list[dict], decisions: list[dict]) -> dict[str, 
         
         dec_id = decision["id"]
         
+        # Check if the LLM invented some ids.
         if dec_id not in input_ids:
             bad(decision, "id not present in the input records")
             continue
         
+        # Check if the LLM duplicated some ids.
         if dec_id in by_id:
             bad(decision, "duplicate id")
             continue
@@ -463,7 +529,7 @@ def validate_decisions(records: list[dict], decisions: list[dict]) -> dict[str, 
                 
         by_id[dec_id] = decision
 
-    # Check if the model skipped some ids.
+    # Double check if some ids were skipped.
     missing_ids = sorted(input_ids - set(by_id))
     for missing_id in missing_ids:
         problems.append(f"{missing_id}: never answered by the model")
@@ -479,7 +545,7 @@ def validate_decisions(records: list[dict], decisions: list[dict]) -> dict[str, 
 def merge_records(records: list[dict], by_id: dict[str, dict]) -> list[dict]:
     """Returns converted statements extended with the LLM mappings.
 
-    The LLM only emits a 4-field list of dicts:
+    The LLM gives us 4 fields:
     
         [
             {
@@ -527,9 +593,7 @@ def sum_groups(merged: list[dict]) -> dict[str, list[str]]:
     This is the aggregation the LLM signals with a repeated "target":
     several raw lines that together form one canonical item.
     
-    Unmapped rows (a null target) never form a group.  The groups drive
-    the CLI report; the joined array itself
-    already carries them one target at a time.
+    Unmapped rows (a null target) never form a group.
     """
     groups: dict[str, list[str]] = {}
     for rec in merged:
@@ -539,8 +603,7 @@ def sum_groups(merged: list[dict]) -> dict[str, list[str]]:
         # in the end.
         if target is not None:
             
-            # Initialize an empty list only if the id does not exist yet
-            # in groups.
+            # Append only if the id does not exist yet in groups.
             groups.setdefault(target, []).append(rec["id"])
     
     return {
@@ -594,7 +657,6 @@ def main() -> int:
 
     # Build system prompt with examples.
     records = load_records(src)
-    examples = load_mapped_examples()
     system_prompt = build_system_prompt()
 
     # ── Ollama call ──────────────────────────────────────────────────────────
