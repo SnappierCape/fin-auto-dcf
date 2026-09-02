@@ -1,0 +1,60 @@
+{
+    "cik": "0001321655",
+    "issuer": "Palantir Technologies Inc.",
+    "tickers": [
+        "PLTR"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-17",
+    "report_date": "2025-12-31",
+    "accession": "0001321655-26-000011",
+    "primary_document": "pltr-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000011/pltr-20251231.htm",
+    "sha256": "a4fef9542c4d1a99a9265df88948e5a115223940db01a0bd01f1d8b6c00acd46",
+    "bytes": 2192014,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0001321655_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000011/R5.htm",
+            "sha256": "5c4ba33f71579a4fae86c673f6c8e84b2ffaa0672ea88388f06344c50d205468",
+            "bytes": 112238,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001321655_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000011/R3.htm",
+            "sha256": "05528a552d759aa9ca1ac1cf924678a4d6f018a724b26bcbf6dcba192aa045b9",
+            "bytes": 127798,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001321655_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000011/R8.htm",
+            "sha256": "391f92c1c3fa42e25f54f895d31fe2ae3eafc6aebdb96b4866bf3750d1127185",
+            "bytes": 83981,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-08-30T20:07:00Z"
+}
