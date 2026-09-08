@@ -512,20 +512,32 @@ def validate_decisions(records: list[dict], decisions: list[dict]) -> dict[str, 
         transform = decision["transform"]
         reason = decision["reason"]
         
+        # ── Reason, Target and Transform check ───────────────────────────────
         # If the line item is unmapped (it can happen) then the reason is
         # mandatory.  The LLM must explain why the item was unmapped.
-        if target is None or transform is None:
+        #
+        # The 'target' and the 'transform' fields are either both present
+        # or both null.  There is no case where one can be present and the
+        # other is null.
+        
+        # Case A: Valid unmapped item
+        if target is None and transform is None:
             if not (isinstance(reason, str) and reason.strip()):
                 bad(decision, "unmapped lines need a non-empty reason")
-        else:
-            needs_target = not isinstance(target, str) or not target
-            needs_transform = not isinstance(transform, str) or not transform
-            if needs_target or needs_transform:
-                bad(decision, "mapped lines need non-empty target and transform")
                 
-            # The decision can't be anything else than a string or None.
-            elif not isinstance(reason, (str, type(None))):
+        # Case B: Valid mapped item
+        elif isinstance(target, str) and target and isinstance(transform, str) and transform:
+            if not isinstance(reason, (str, type(None))):  # reason optional
                 bad(decision, "reason must be a string or null")
+        
+        # Case C: Invalid options     
+        else:
+            if target is not None and transform is None:
+                bad(decision, "mapped target provided, but transform is null")
+            elif target is None and transform is not None:
+                bad(decision, "transform provided, but target is null")
+            else:
+                bad(decision, "target and transform must be non-empty strings")
                 
         by_id[dec_id] = decision
 
