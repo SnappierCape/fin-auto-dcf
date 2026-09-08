@@ -253,21 +253,23 @@ class Converter:
     def has_value(self, cells) -> bool:
         """Whether the row carried numeric period values.
 
-        Any cell (other than the label) that is (part of) a
-        number ─ so subtotal, component and note rows are all told
-        apart at a glance.
+        The method looks at each cell in the row except for the "TAG" cell,
+        and returns True if any of the cells contains a numeric value with or
+        without periods or currency signs.
         """
-        seen_label = False
-        
         for cell in cells:
-            text = _clean(cell.get_text())
             
-            if not text:  # skip empty cells
+            # Skip the "TAG" cell, because it may contain
+            # numbers that are not numeric values.
+            if _TAG_RE.search(str(cell)):
                 continue
-            
-            if not seen_label and not _TAG_RE.search(str(cell)):  # skip tag cell
-                seen_label = True
-            elif _VALUE_RE.match(text):  # check numeric pattern
+
+            text = _clean(cell.get_text())
+            if not text:
+                continue
+
+            # Check if the cell actually contains numeric values.
+            if _VALUE_RE.match(text):
                 return True
             
         return False
