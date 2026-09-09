@@ -70,8 +70,34 @@ _TAG_RE = re.compile(r"Show\.showAR\(\s*this\s*,\s*'([^']+)'")
 
 # A cell that is (part of) a number: optional currency sign, digits with
 # thousands separators and / or decimals, optional parentheses or percent.
-_VALUE_RE = re.compile(r"^\s*[(]?\s?[$€£]?\s?[\d][\d,\.\s%]*\s*$")
-
+_VALUE_RE = re.compile(
+    r"""
+    \s*  # optional whitespaces
+    [-+]?  # optional sign
+    \s*
+    [$£€]?  # optional currency sign
+    \s*
+    [-+]?
+    \s*
+    (?:  # grouping
+        \(  # opening parenthesis
+            \s*
+            [$£€]?
+            \s*
+            \d  # a single digit
+            [\d,.\s]*  # any number of digits, separators, or whitespaces
+            %?  # optional single percentage sign
+            \s*
+        \)  # closing parenthesis
+    |  # or
+        \d
+        [\d,.\s]*
+        %?
+    )
+    \s*
+    """, re.VERBOSE
+)
+                       
 # A whitespace character lxml decodes from entities such as &#160; .
 _WS_RE = re.compile(r"[\s\xa0]+")
 
@@ -269,7 +295,7 @@ class Converter:
                 continue
 
             # Check if the cell actually contains numeric values.
-            if _VALUE_RE.match(text):
+            if _VALUE_RE.fullmatch(text):
                 return True
             
         return False
