@@ -1,0 +1,40 @@
+{
+    "cik": "0000034088",
+    "issuer": "EXXON MOBIL CORP",
+    "tickers": [],
+    "form": "10-K",
+    "filing_date": "2026-02-18",
+    "report_date": "2025-12-31",
+    "accession": "0000034088-26-000045",
+    "primary_document": "xom-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/xom-20251231.htm",
+    "sha256": "3591db2246ab14c52465d32f69b459b000919c141a5656c81cf59acf0a805be8",
+    "bytes": 5591068,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statement Of Income",
+            "local_file": "0000034088_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R3.htm",
+            "sha256": "ef5789191ad08d92ed21c9b5182fc6ef0ea6d2fadd9456a65ceddf11e925f5b2",
+            "bytes": 108857
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Balance Sheet",
+            "local_file": "0000034088_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R5.htm",
+            "sha256": "0b058e18eedb1330440550eb328d08399880905fc499f8be4b5f408af499d14b",
+            "bytes": 139526
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "Consolidated Statement Of Cash Flows",
+            "local_file": "0000034088_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R7.htm",
+            "sha256": "38218774aea79110b2b298a129e151144d7e768b72c2e965c64b8e6cb2d8e66f",
+            "bytes": 104555
+        }
+    },
+    "downloaded_at": "2026-08-25T08:30:37Z"
+}

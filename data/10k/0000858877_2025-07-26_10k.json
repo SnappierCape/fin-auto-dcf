@@ -1,0 +1,42 @@
+{
+    "cik": "0000858877",
+    "issuer": "CISCO SYSTEMS, INC.",
+    "tickers": [
+        "CSCO"
+    ],
+    "form": "10-K",
+    "filing_date": "2025-09-03",
+    "report_date": "2025-07-26",
+    "accession": "0000858877-25-000111",
+    "primary_document": "csco-20250726.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/858877/000085887725000111/csco-20250726.htm",
+    "sha256": "c63d07c5ceca03b9854bb42270dc157b707ee8983ea31de2668974495301da1a",
+    "bytes": 3528800,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0000858877_2025-07-26_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/858877/000085887725000111/R5.htm",
+            "sha256": "93b426fdd0cbe225931abc7ab7e3dc0c6d1235d1400101c4701d834f0916bb0a",
+            "bytes": 110404
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000858877_2025-07-26_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/858877/000085887725000111/R3.htm",
+            "sha256": "0fb226361f56bb86a74a800cd032de2e4c4ed6fbf1c4ab2bb19cc3d4d87438b8",
+            "bytes": 125397
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000858877_2025-07-26_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/858877/000085887725000111/R8.htm",
+            "sha256": "15519d962025fd65e990090d6ce5fbecfe5ccddbc92556265a1087a9863f3769",
+            "bytes": 111515
+        }
+    },
+    "downloaded_at": "2026-08-25T08:29:47Z"
+}
