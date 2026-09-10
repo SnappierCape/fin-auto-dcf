@@ -4,7 +4,8 @@
 """Maps one converted statement into the canonical schema's item names.
 
 Reads a record array from "convert.py" ("data/converted/"), pairs it with
-the "prompt.md" system prompt, injects 3 hand-made example mappings into
+the "prompt.md" system prompt, injects the canonical names and
+3 hand-made example mappings into
 the system prompt, and asks a local Ollama "/api/chat"
 endpoint (plain HTTP, stdlib "urllib", no dependencies) for one thing
 only: a mapping of each raw line to a canonical target.
@@ -13,17 +14,13 @@ The model uses the four-field contract defined in "src/llm/prompt.md" and
 links every item using the "id" key from the input file:
 
     id        ─ unique identifier for each input item
-    target    ─ "<bucket>.<line_item>" for mapped lines, else null
+    target    ─ "<bucket>.<item>" for mapped lines, else null
     transform ─ the transformation applied to the item
     reason    ─ a short reason; mandatory when the line is unmapped
 
 The LLM never sees or prints a number.  When several raw items together
-form one canonical item, it points them all at the same target; the code
-then sums them deterministically.  It is a mapper, not a calculator.
-
-The canonical schema itself never enters the prompt.  The model calibrates
-from hand-made converted --> mapped examples injected into "prompt.md" at
-runtime: each example comes from "data/example_converted/".
+form one canonical item, it points them all at the same target.
+It is a mapper, not a calculator.
 
 Every input item must be answered exactly once; duplicate, missing, or
 invented ids (or a wrong field shape) abort the run loudly - nothing is
@@ -57,13 +54,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 SYSTEM_PROMPT = ROOT / "src" / "llm" / "prompt.md"
+CANONICAL_SCHEMA = ROOT / "data" / "canonical_schema.json"
+
 CONVERTED_DIR = ROOT / "data" / "converted"
 EXAMPLE_DIR = ROOT / "data" / "example_mappings"
 GOLDEN_DIR = ROOT / "data" / "golden"
 MAPPED_DIR = ROOT / "data" / "mapped"
 
-# This is useful to find the section of the prompt where the few-shots exaplme are located.
-FEW_SHOT_ANCHOR = "<start_few_shots>"
+# This is useful to find where to insert the canonical names block and the
+# few-shots block.
+FEW_SHOT_ANCHOR = "<few_shots_anchor>"
+CANONICAL_NAMES_ANCHOR = "<canonical_names_anchor>"
 
 DEFAULT_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "qwen3.8:27b-agent"
@@ -86,7 +87,7 @@ INPUT_KEYS = ("id", "stmt", "order", "level", "label", "tag", "has_value")
 #      "mappings": [     
 #         {  
 #            "id": "34088_is_001",
-#            "target": "income_statement.revenue",
+#            "target": "is.revenue",
 #            "transform": "renamed",
 #            "reason": "total net sales is the pipeline's revenue line"
 #         },
@@ -122,7 +123,7 @@ MAP_SCHEMA = {
 
 
 # =============================================================================
-# Input loading and few-shot assembly
+# Input loading and system prompt assembly
 # =============================================================================
 
 def normalize_cik(cik: str) -> str:
@@ -258,18 +259,60 @@ def build_few_shots_block(examples: list[tuple[str, list[dict], list[dict]]]) ->
     return "\n\n".join(blocks) + "\n"
 
 
-def build_system_prompt() -> str:
-    """Returns "prompt.md" with the few-shot section filled from "pairs".
+def build_canonical_names_block() -> dict[list[str]]:
+    """Builds the canonical names block to insert in the system prompt.
     
-    Fetches the naked "prompt.md" without the few-shots block, and fills it
-    up with the block created by build_few_shots_block().
+    Fetches "data/canonical_schema.json", extracts only the "statements"
+    sub-dict, and returns only the possible canonical names for every bucket
+    and every item in this format:
+    
+    {
+        'is': ['revenue', 'cost_of_revenue', 'gross_profit', ...],
+        'current_assets': ['cash_and_eq', 'st_investments', 'a_r', ...],
+        'non_current_assets': ['p_p_e', 'lease', 'goodwill', ...],
+        ...
+    }
+    """
+    # Open the canonical schema .json file and load it into a python dict.
+    with open(CANONICAL_SCHEMA, "r", encoding=ENCODING) as canon_file:
+        canon = json.load(canon_file)
 
-    Everything above the "<start_few_shots>" anchor is byte-identical
+    # Ectract only the 'statements' sub-dict we are interested in.
+    statements = canon['statements']
+
+    canonical_names = {}
+
+    # Cycle through each bucket and collect all the canonical names of
+    # the items inside the bucket in a simple list.  This way, the LLM
+    # will know what possible bucket and item names are available.
+    for bucket_name, bucket_content in statements.items():
+        items = list(bucket_content.keys())  # extract all the possible items for this bucket
+        canonical_names[bucket_name] = items
+    
+    return str(canonical_names)
+    
+
+def build_system_prompt() -> str:
+    """Injects the few-shots and the canonical names section in "prompt.md".
+    
+    Fetches the naked "prompt.md", and fills it
+    with the blocks created by build_canonical_names_block() and
+    build_few_shots_block().
+
+    Everything above the "<canonical_names_anchor>" is byte-identical
     to the file on disk.
     """
     text = SYSTEM_PROMPT.read_text(encoding=ENCODING)
     
-    # Check if there is more than one anchor.
+    # Check if there is more than one caonical names anchor.
+    if text.count(CANONICAL_NAMES_ANCHOR) != 1:
+        found = text.count(CANONICAL_NAMES_ANCHOR)
+        raise ValueError(
+            f"{SYSTEM_PROMPT.name} must contain exactly one "
+            f"{CANONICAL_NAMES_ANCHOR!r}, found {found}"
+        )
+        
+    # Same check for the few shots anchor.
     if text.count(FEW_SHOT_ANCHOR) != 1:
         found = text.count(FEW_SHOT_ANCHOR)
         raise ValueError(
@@ -277,11 +320,28 @@ def build_system_prompt() -> str:
             f"{FEW_SHOT_ANCHOR!r}, found {found}"
         )
     
-    # Extract everything before the anchor.
-    head, _tail = text.split(FEW_SHOT_ANCHOR, maxsplit=1)
+    # ── Splitting strategy ───────────────────────────────────────────────────
+    # Here the strategy is simple: we split the text in 3 parts:
+    #   1. Head:     The part that goes from the beginning to the canonical
+    #                names anchor
+    #   2. Mid:      The part that is in between the canonical names anchor and
+    #                the few-shots anchor
+    #   3. Tail (_): Everythig below the few-shots anchor
     
-    # Return the head plus the few-shots block in a single string.
-    return head + build_few_shots_block(load_mapped_examples())
+    # Split with respect to canonical names anchor.
+    head, tail = text.split(CANONICAL_NAMES_ANCHOR, maxsplit=1)    
+
+    # Split the tail with respect to few-shots anchor.
+    mid, _ = tail.split(FEW_SHOT_ANCHOR, maxsplit=1)
+    
+    # Return the head plus the mid with the rights blocks plugged
+    # in between.
+    return (
+        head
+        + build_canonical_names_block()
+        + mid
+        + build_few_shots_block(load_mapped_examples())
+    )
 
 
 def call_ollama(
@@ -670,6 +730,7 @@ def main() -> int:
     # Build system prompt with examples.
     records = load_records(src)
     system_prompt = build_system_prompt()
+    print(system_prompt)
 
     # ── Ollama call ──────────────────────────────────────────────────────────
     started = time.monotonic()
