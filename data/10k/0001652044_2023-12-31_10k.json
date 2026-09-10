@@ -1,0 +1,64 @@
+{
+    "cik": "0001652044",
+    "issuer": "Alphabet Inc.",
+    "tickers": [
+        "GOOGL",
+        "GOOG",
+        "GOOGM",
+        "GOOGN"
+    ],
+    "form": "10-K",
+    "filing_date": "2024-01-31",
+    "report_date": "2023-12-31",
+    "accession": "0001652044-24-000022",
+    "primary_document": "goog-20231231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/goog-20231231.htm",
+    "sha256": "787dd59d770312b204d144b4c78b8de23db1e1d53aae4bf37a52d6d874e903b2",
+    "bytes": 2410403,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF INCOME",
+            "local_file": "0001652044_2023-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/R5.htm",
+            "sha256": "a4c0f80c951c270ad551aafd856023040eaac5f15c77abb88220068818cbdba8",
+            "bytes": 62627,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "CONSOLIDATED BALANCE SHEETS",
+            "local_file": "0001652044_2023-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/R3.htm",
+            "sha256": "125e4d08440efc5782f3c4e8be7f63a429ba8e90ce744dadfddce94d0290c2cf",
+            "bytes": 114086,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+            "local_file": "0001652044_2023-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/R9.htm",
+            "sha256": "119bd2a902742b24396dc01e7cfe3fca18dc6db0ee316a272b4212df136b79a2",
+            "bytes": 88759,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-09T18:13:27Z"
+}

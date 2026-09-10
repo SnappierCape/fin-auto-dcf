@@ -1,0 +1,62 @@
+{
+    "cik": "0000320187",
+    "issuer": "NIKE, Inc.",
+    "tickers": [
+        "NKE"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-07-15",
+    "report_date": "2026-05-31",
+    "accession": "0000320187-26-000088",
+    "primary_document": "nke-20260531.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000088/nke-20260531.htm",
+    "sha256": "6dd837804f1ede7b42ea6511402f3d01e59331ed3a362a88e1e4fc7269d7d41a",
+    "bytes": 2824360,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF INCOME",
+            "local_file": "0000320187_2026-05-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000088/R3.htm",
+            "sha256": "367a4751ed4b2824009f7400dc3c03c4d09d1a4af0fd64d9d12c87a4abda7516",
+            "bytes": 86976,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "CONSOLIDATED BALANCE SHEETS",
+            "local_file": "0000320187_2026-05-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000088/R5.htm",
+            "sha256": "17da187b9139e66f453a366babf2fabf9880fa6678a17713a6daf718b375c14d",
+            "bytes": 112003,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "shareholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+            "local_file": "0000320187_2026-05-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000088/R7.htm",
+            "sha256": "1ac2f1df0e5b85a9c405cb213e9194672d18431a45e3399a11479768c74192ae",
+            "bytes": 95529,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-09T18:19:13Z"
+}

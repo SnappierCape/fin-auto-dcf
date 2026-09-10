@@ -1,0 +1,61 @@
+{
+    "cik": "0001692819",
+    "issuer": "Vistra Corp.",
+    "tickers": [
+        "VST"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-27",
+    "report_date": "2025-12-31",
+    "accession": "0001692819-26-000006",
+    "primary_document": "vistra-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1692819/000169281926000006/vistra-20251231.htm",
+    "sha256": "7f14fefedd12aa959de58c3ab44de4c2eb77d12ec1c4e9ca41c1e91326f09225",
+    "bytes": 5587052,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0001692819_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1692819/000169281926000006/R3.htm",
+            "sha256": "ad2c6003f635360e1d93f0f9916653e759daed453f57dad090e27c97b2db6b34",
+            "bytes": 116713,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001692819_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1692819/000169281926000006/R6.htm",
+            "sha256": "86765167b58a0876e1607dff874dfac00d9128a1a12d66a08ae45edb120ae2ef",
+            "bytes": 180968,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001692819_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1692819/000169281926000006/R8.htm",
+            "sha256": "713c2fa6f47d611ac20d34d45e7efba7f71ba6dd7c96fe37245dc19f7c26d7ea",
+            "bytes": 161071,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-09T18:35:22Z"
+}

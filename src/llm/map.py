@@ -85,13 +85,13 @@ INPUT_KEYS = ("id", "stmt", "order", "level", "label", "tag", "has_value")
 #   {
 #      "mappings": [     
 #         {  
-#            "id": "34088_is_001",
+#            "id": "34088_is_2025-12-31_01",
 #            "target": "income_statement.revenue",
 #            "transform": "renamed",
 #            "reason": "total net sales is the pipeline's revenue line"
 #         },
 #         {
-#            "id": "34088_is_002",
+#            "id": "34088_is_2025-12-31_02",
 #            "target": null,
 #            "transform": null,
 #            "reason": "no counterpart in the is buckets"
@@ -371,7 +371,7 @@ def parse_response(body: dict) -> list[dict]:
     #   "created_at": "2026-09-02T14:29:00Z",
     #   "message": {
     #       "role": "assistant",
-    #       "content": "{\n  \"mappings\": [\n    {\n      \"id\": \"34088_is_01\",\n      \"target\": null,\n      \"transform\": null,\n      \"reason\": \"section heading\"\n    }\n  ]\n}"
+    #       "content": "{\n  \"mappings\": [\n    {\n      \"id\": \"34088_is_2025-12-31_01\",\n      \"target\": null,\n      \"transform\": null,\n      \"reason\": \"section heading\"\n    }\n  ]\n}"
     #   },
     #   "done_reason": "stop",
     #   "done": true
@@ -624,78 +624,186 @@ def sum_groups(merged: list[dict]) -> dict[str, list[str]]:
 
 
 # =============================================================================
-# Main
+# Finding converted statements and mapping execution
 # =============================================================================
 
-def main() -> int:
-    """CLI entry point: maps one statement through Ollama, writes the output."""
-    
-    # ── CLI config ───────────────────────────────────────────────────────────
-    parser = argparse.ArgumentParser(
-        description="Map a convert.py output via Ollama."
-    )
-    parser.add_argument("cik", help="Companie's EDGAR CIK, e.g. 104169")
-    parser.add_argument(
-        "stmt", choices=STATEMENTS, help="statement: (is | bs | cf)"
-    )
-    parser.add_argument(
-        "--url", default=DEFAULT_URL,
-        help=f"Ollama base URL (default {DEFAULT_URL})"
-    )
-    parser.add_argument(
-        "--model", default=DEFAULT_MODEL,
-        help=f"model name (default {DEFAULT_MODEL})"
-    )
-    parser.add_argument(
-        "--out", default=None,
-        help="output path (default data/mapped/<cik>_<stmt>.json)"
-    )
-    args = parser.parse_args()
+def find_converted(
+    cik: str, stmt: str, report_date: str | None = None
+) -> Path:
+    """Locates the converted .json file under CONVERTED_DIR.
 
-    # ── Pipeline ─────────────────────────────────────────────────────────────
-    cik = normalize_cik(args.cik)
-    stem = f"{cik}_{args.stmt}"
-    src = CONVERTED_DIR / f"{stem}.json"
-    out = Path(args.out) if args.out else MAPPED_DIR / f"{stem}.json"
-    
-    # If the converted file does not exist.
-    if not src.is_file():
-        print(
-            f"error: {src} not found — run "
-            f"uv run src/llm/convert.py {cik} {args.stmt} first",
-            file=sys.stderr
-        )
-        return 1
+    Conventions:
+    - If report_date is specified, matches <cik>_<report_date>_<stmt>.json.
+    - If report_date is omitted, sorts matching files chronologically and
+      returns the most recent fiscal year (hits[-1]).
+    - Falls back to legacy non-dated <cik>_<stmt>.json if present.
+    """
+    cik10 = normalize_cik(cik)
 
-    # Build system prompt with examples.
+    # If a specific report date is given, match that exact filename pattern.
+    if report_date:
+        pattern = f"{cik10}_{report_date}_{stmt}.json"
+        hits = list(CONVERTED_DIR.glob(pattern))
+        if not hits:
+            sys.exit(
+                f"map: no converted filing matching {pattern} in "
+                f"{CONVERTED_DIR}"
+            )
+        return hits[0]
+
+    # Gather all historical converted files for this CIK and stmt.
+    hits = sorted(CONVERTED_DIR.glob(f"{cik10}_*_{stmt}.json"))
+    if hits:
+        return hits[-1]
+
+    # Legacy fallback if files were created without a report date.
+    legacy = CONVERTED_DIR / f"{cik10}_{stmt}.json"
+    if legacy.is_file():
+        return legacy
+
+    known = sorted(
+        {p.name.split("_")[0] for p in CONVERTED_DIR.glob("*_*.json")}
+    )
+    sys.exit(
+        f"map: no converted {stmt} files for CIK {cik10} in "
+        f"{CONVERTED_DIR}\n  available CIKs: {', '.join(known) or '(none)'}"
+    )
+
+
+def map_statement(
+    cik: str,
+    stmt: str,
+    report_date: str | None = None,
+    url: str = DEFAULT_URL,
+    model: str = DEFAULT_MODEL,
+    out: Path | None = None,
+    system_prompt: str | None = None,
+) -> Path:
+    """Full automatic pass: locate converted file, call Ollama, write JSON."""
+    src = find_converted(cik, stmt, report_date=report_date)
+    parts = src.name.removesuffix(".json").split("_")
+    actual_date = parts[1] if len(parts) >= 3 else ""
+    cik10 = normalize_cik(cik)
+
+    stem = (
+        f"{cik10}_{actual_date}_{stmt}" if actual_date else f"{cik10}_{stmt}"
+    )
+    dest = out if out is not None else (MAPPED_DIR / f"{stem}.json")
+
     records = load_records(src)
-    system_prompt = build_system_prompt()
+    prompt = (
+        system_prompt
+        if system_prompt is not None
+        else build_system_prompt()
+    )
 
     # ── Ollama call ──────────────────────────────────────────────────────────
     started = time.monotonic()
-    body = call_ollama(system_prompt, records, args.url, args.model)
+    body = call_ollama(prompt, records, url, model)
     decisions = parse_response(body)
     by_id = validate_decisions(records, decisions)
     merged = merge_records(records, by_id)
 
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(
-        json.dumps(merged, indent=2, ensure_ascii=False)
-        + "\n", encoding=ENCODING
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(
+        json.dumps(merged, indent=2, ensure_ascii=False) + "\n",
+        encoding=ENCODING,
     )
     elapsed = time.monotonic() - started
-    
+
     mapped = sum(1 for rec in merged if rec["target"] is not None)
     groups = sum_groups(merged)
     print(
         f"mapped {stem}: {len(merged)} records "
         f"({mapped} mapped, {len(merged) - mapped} unmapped) "
-        f"in {elapsed:.1f}s -> {out}"
+        f"in {elapsed:.1f}s -> {dest}"
     )
     if groups:
         print(f"  sum groups: {len(groups)} target(s) served by 2+ rows")
         for target, ids in groups.items():
             print(f"    {target} <- " + ", ".join(ids))
+
+    return dest
+
+
+# =============================================================================
+# Main
+# =============================================================================
+
+def main(argv=None) -> int:
+    """CLI entry point: maps statement(s) through Ollama, writes output."""
+
+    # ── CLI config ───────────────────────────────────────────────────────────
+    parser = argparse.ArgumentParser(
+        description="Map a convert.py output via Ollama."
+    )
+    parser.add_argument("cik", help="Company's EDGAR CIK, e.g. 104169")
+    parser.add_argument(
+        "stmt",
+        nargs="?",
+        default=None,
+        choices=STATEMENTS,
+        help="statement: (is | bs | cf)",
+    )
+    parser.add_argument(
+        "--date", default=None, help="specific report date (YYYY-MM-DD)"
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="map all converted historical statements for this CIK",
+    )
+    parser.add_argument(
+        "--url",
+        default=DEFAULT_URL,
+        help=f"Ollama base URL (default {DEFAULT_URL})",
+    )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"model name (default {DEFAULT_MODEL})",
+    )
+    out_hint = f"{MAPPED_DIR}/<cik>_<date>_<stmt>.json"
+    parser.add_argument(
+        "--out",
+        default=None,
+        help=f"output path (default {out_hint})",
+    )
+    args = parser.parse_args(argv)
+
+    # ── Pipeline ─────────────────────────────────────────────────────────────
+    cik = normalize_cik(args.cik)
+
+    if args.all:
+        stmts = [args.stmt] if args.stmt else STATEMENTS
+        system_prompt = build_system_prompt()
+        for s in stmts:
+            for p in sorted(CONVERTED_DIR.glob(f"{cik}_*_{s}.json")):
+                parts = p.name.removesuffix(".json").split("_")
+                rep_date = parts[1] if len(parts) >= 3 else None
+                map_statement(
+                    cik,
+                    s,
+                    report_date=rep_date,
+                    url=args.url,
+                    model=args.model,
+                    system_prompt=system_prompt,
+                )
+        return 0
+
+    if not args.stmt:
+        parser.error(
+            "the following arguments are required: stmt (or use --all)"
+        )
+
+    map_statement(
+        cik,
+        args.stmt,
+        report_date=args.date,
+        url=args.url,
+        model=args.model,
+        out=Path(args.out) if args.out else None,
+    )
     return 0
 
 

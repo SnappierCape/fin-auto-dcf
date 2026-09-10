@@ -4,11 +4,11 @@
 
 The pipeline is fully automatic: given a CIK and a statement (is | bs | cf),
 the module locates the right pre-split R-file under data/10k/, extracts one
-flat record per data row, and writes compact JSON into the data/converted folder.
+flat record per data row, and writes compact JSON into data/converted.
 
 Record contract:
 
-    "id"           : "34088_bs_01",
+    "id"           : "34088_bs_2023-01-01_01",
     "stmt"         : "bs",
     "order"        : 1,
     "level"        : 0,
@@ -18,7 +18,7 @@ Record contract:
 
 Meaning:
 
-    id        -- "{cik}_{stmt}_{row:02d}", stable across runs for the same file
+    id        -- "{cik}_{stmt}_{date_YYYY-MM-DD}_{order:02d}", stable across runs for the same file
     stmt      -- the statement name (is | bs | cf)
     order     -- 1-based position among data rows (headers excluded)
     level     -- grouping depth: 0 = subtotal / heading (bold row),
@@ -34,9 +34,12 @@ Numbers are not parsed into the records: classification is driven by
 label + hierarchy + tag, and a validator does the arithmetic later.
 
 Usage:
-
-    uv run src/llm/convert.py 0000034088 bs                 # defaults
-    uv run src/llm/convert.py 789019 cf --out /tmp/...      # explicit out
+  
+    uv run src/llm/convert.py 0001652044 is                     # converts only the latest Income Statement
+    uv run src/llm/convert.py 0001652044 bs --date 2018-12-31   # converts a specific historical year's Balance Sheet
+    uv run src/llm/convert.py 0001652044 cf --all               # converts all historical Cash Flow statements (10 years)
+    uv run src/llm/convert.py 0001652044 --all                  # converts ALL 10-year historical statements (is + bs + cf = 30 files)
+    uv run src/llm/convert.py 789019 cf --out /tmp/...          # explicit out
 """
 
 from __future__ import annotations
@@ -126,11 +129,14 @@ class Converter:
     The pipeline is fixed: find the table, walk its rows, extract fields.
     The hooks each answer one question.
     """
-    def __init__(self, stmt: str, cik: str = "") -> None:
+    def __init__(
+        self, stmt: str, cik: str = "", report_date: str = ""
+    ) -> None:
         if stmt not in STATEMENTS:
             sys.exit(f"convert: unknown statement {stmt!r} (want is|bs|cf)")
         self.stmt = stmt
         self.cik = cik.lstrip("0") or cik
+        self.report_date = report_date
     
     
     @staticmethod
@@ -203,9 +209,10 @@ class Converter:
             
             order += 1
             cells = self.cells(row)
+            date_part = f"{self.report_date}" if self.report_date else ""
             
             records.append({
-                "id": f"{self.cik}_{self.stmt}_{order:02d}",  # NOTE: What if there are more than 99 rows?
+                "id": f"{self.cik}_{self.stmt}_{date_part}_{order:02d}",  # if 99 rows are too many, the format can be changed to 03d
                 "stmt": self.stmt,
                 "order": order,
                 "level": self.level_of(cells),
@@ -305,15 +312,22 @@ class Converter:
 # Finding the filing and running the conversion
 # =============================================================================
 
-def find_filing(cik: str, stmt: str) -> Path:
+def find_filing(cik: str, stmt: str, report_date: str | None = None) -> Path:
     """Locates the statement's .htm file under DATA_DIR.
 
     Conventions: CIK is 10 digits zero-padded in filenames; if several
     filings match (multiple 10-K dates), the most recent wins.
     """
     cik = cik if not cik.isdigit() else cik.zfill(10)
-    
-    hits = sorted(DATA_DIR.glob(f"{cik}_*_10k_{stmt}.htm"))
+
+    if report_date:  # If a specific report date is given, match that exact filename pattern.
+        pattern = f"{cik}_{report_date}_10k_{stmt}.htm"
+        hits = list(DATA_DIR.glob(pattern))
+        if not hits:
+            sys.exit(f"convert: no filing matching {pattern} in {DATA_DIR}")
+        return hits[0]
+
+    hits = sorted(DATA_DIR.glob(f"{cik}_*_10k_{stmt}.htm"))  # Gather all historical filings for this CIK and statement.
     if not hits:
         
         known = sorted(
@@ -333,29 +347,33 @@ def convert(
     stmt: str,
     converter: Converter | None = None,
     out: Path | None = None,
+    report_date: str | None = None,
 ) -> Path:
     """Full automatic pass: locate the file, extract records, write JSON.
 
-    cik       -- CIK, any width (34088 or 0000034088).
-    stmt      -- ("is" | "bs" | "cf").
-    converter -- a Converter; defaults to one built in this module.
-    out       -- output json path.
+    cik         -- CIK, any width (34088 or 0000034088).
+    stmt        -- ("is" | "bs" | "cf").
+    converter   -- a Converter; defaults to one built in this module.
+    out         -- output json path.
+    report_date -- optional specific report date (YYYY-MM-DD).
 
     Returns the path written, so a pipeline can chain on it.
     """
+    path = find_filing(cik, stmt, report_date=report_date)
+    actual_date = path.name.split("_")[1]
+    
     if converter is None:
-        converter = Converter(stmt, cik)
-        
+        converter = Converter(stmt, cik, report_date=actual_date)
     else:
         converter.stmt = stmt
         converter.cik = cik.lstrip("0") or cik
+        converter.report_date = actual_date
         
-    path = find_filing(cik, stmt)
     records = converter.convert(path)
     
     if out is None:
         padded_cik = converter.cik.zfill(10)
-        out = OUTPUT_DIR / f"{padded_cik}_{stmt}.json"
+        out = OUTPUT_DIR / f"{padded_cik}_{actual_date}_{stmt}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     
     out.write_text(converter.dumps(records), encoding=ENCODING)
@@ -367,21 +385,49 @@ def convert(
 # =============================================================================
 
 def main(argv=None) -> None:
-    """CLI entry point: convert.py <cik> <stmt> [--out PATH]."""
+    """CLI entry point: convert.py <cik> [stmt] [--date DATE] [--all]."""
     parser = argparse.ArgumentParser(
         description="Convert a 10-K statement R-file into LLM-ready JSON."
     )
     
     parser.add_argument("cik", help="company CIK, e.g. 0000034088 or 34088")
-    parser.add_argument("stmt", choices=STATEMENTS, help="statement")
+    parser.add_argument(
+        "stmt", nargs="?", default=None, choices=STATEMENTS,
+        help="statement (is | bs | cf)"
+    )
+    out_hint = f"{OUTPUT_DIR}/<padded_cik>_<date>_<stmt>.json"
     parser.add_argument(
         "--out", type=Path, default=None,
-        help=f"output .json path (default {OUTPUT_DIR}/<padded_cik>_<stmt>.json)"
+        help=f"output .json path (default {out_hint})"
+    )
+    parser.add_argument(
+        "--date", default=None, help="specific report date (YYYY-MM-DD)"
+    )
+    parser.add_argument(
+        "--all", action="store_true",
+        help="convert all downloaded historical statements for this CIK and statement"
     )
     
     ns = parser.parse_args(argv)
-    path = convert(ns.cik, ns.stmt, out=ns.out)
     
+    if ns.all:
+        padded_cik = ns.cik if not ns.cik.isdigit() else ns.cik.zfill(10)
+        stmts = [ns.stmt] if ns.stmt else STATEMENTS
+        written = []
+        for s in stmts:
+            for p in sorted(DATA_DIR.glob(f"{padded_cik}_*_10k_{s}.htm")):
+                rep_date = p.name.split("_")[1]
+                written.append(convert(ns.cik, s, report_date=rep_date))
+        for w in written:
+            print(w)
+        return
+        
+    if not ns.stmt:
+        parser.error(
+            "the following arguments are required: stmt (or use --all)"
+        )
+        
+    path = convert(ns.cik, ns.stmt, out=ns.out, report_date=ns.date)
     print(path)
 
 

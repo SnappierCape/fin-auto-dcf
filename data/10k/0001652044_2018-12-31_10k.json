@@ -1,0 +1,65 @@
+{
+    "cik": "0001652044",
+    "issuer": "Alphabet Inc.",
+    "tickers": [
+        "GOOGL",
+        "GOOG",
+        "GOOGM",
+        "GOOGN"
+    ],
+    "form": "10-K",
+    "filing_date": "2019-02-05",
+    "report_date": "2018-12-31",
+    "accession": "0001652044-19-000004",
+    "primary_document": "goog10-kq42018.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204419000004/goog10-kq42018.htm",
+    "sha256": "3484783a297323a55382d418e1f490243b041291537c4fc0c7247bf5d7e988ab",
+    "bytes": 2738368,
+    "statements": {
+        "is": {
+            "source_html_file": "R4.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF INCOME",
+            "local_file": "0001652044_2018-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204419000004/R4.htm",
+            "sha256": "690cb5d38c34648442171ca17b48249ab3cf52baef38e2b20ba3e678b3f2bb05",
+            "bytes": 40735,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R2.htm",
+            "short_name": "CONSOLIDATED BALANCE SHEETS",
+            "local_file": "0001652044_2018-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204419000004/R2.htm",
+            "sha256": "be11918ffad166d84f03a23231023c2e897efafd13931cd994522690f8d82549",
+            "bytes": 91167,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+            "local_file": "0001652044_2018-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204419000004/R8.htm",
+            "sha256": "3efb53f807a3a433fb455a2e1ba25e994005659f2a9bb2c0baca90e99ea81291",
+            "bytes": 89817,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-09T18:13:42Z"
+}

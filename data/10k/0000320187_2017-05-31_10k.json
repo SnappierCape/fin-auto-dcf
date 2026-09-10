@@ -1,0 +1,62 @@
+{
+    "cik": "0000320187",
+    "issuer": "NIKE, Inc.",
+    "tickers": [
+        "NKE"
+    ],
+    "form": "10-K",
+    "filing_date": "2017-07-20",
+    "report_date": "2017-05-31",
+    "accession": "0000320187-17-000090",
+    "primary_document": "nke-5312017x10k.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018717000090/nke-5312017x10k.htm",
+    "sha256": "f8ec4c08c986884dba783822e6cc2049d5b427da99b3e65ec83d88aca294eb96",
+    "bytes": 3397110,
+    "statements": {
+        "is": {
+            "source_html_file": "R2.htm",
+            "short_name": "Consolidated Statements of Income",
+            "local_file": "0000320187_2017-05-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018717000090/R2.htm",
+            "sha256": "20808d2b731ad7c4950835f4dea097df911caf0671aa4c8a8a2f6744403792c0",
+            "bytes": 37592,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R4.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000320187_2017-05-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018717000090/R4.htm",
+            "sha256": "9f348d16aa84e64bf12323e08537205a6ceca535b385b278931e9325ab7e8b42",
+            "bytes": 75938,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000320187_2017-05-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/320187/000032018717000090/R6.htm",
+            "sha256": "a4fde1b32809d89b7fd67969bef208a304c5a1c54654fa0828852ee874ff230e",
+            "bytes": 95284,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-09T18:19:53Z"
+}
