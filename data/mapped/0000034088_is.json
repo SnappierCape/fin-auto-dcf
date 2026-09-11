@@ -9,7 +9,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "section heading with no value, no canonical counterpart"
+    "reason": "section heading with no canonical counterpart"
   },
   {
     "id": "34088_is_02",
@@ -33,7 +33,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "section heading with no value, no canonical counterpart"
+    "reason": "section heading with no canonical counterpart"
   },
   {
     "id": "34088_is_04",
@@ -45,7 +45,7 @@
     "has_value": true,
     "target": "is.cost_of_revenue",
     "transform": "other",
-    "reason": "crude oil purchases is a cost-of-revenue component"
+    "reason": "direct product purchase cost folded into cost of revenue"
   },
   {
     "id": "34088_is_05",
@@ -57,7 +57,7 @@
     "has_value": true,
     "target": "is.cost_of_revenue",
     "transform": "other",
-    "reason": "production and manufacturing expenses is a cost-of-revenue component"
+    "reason": "manufacturing cost folded into cost of revenue"
   },
   {
     "id": "34088_is_06",
@@ -69,7 +69,7 @@
     "has_value": true,
     "target": "is.s_g_a",
     "transform": "renamed",
-    "reason": "selling, general and administrative maps directly to s_g_a"
+    "reason": "selling general and administrative maps directly"
   },
   {
     "id": "34088_is_07",
@@ -93,7 +93,7 @@
     "has_value": true,
     "target": "is.other_op_income_expenses",
     "transform": "other",
-    "reason": "exploration expenses is an operating cost not in a specific line"
+    "reason": "oil and gas exploration expense is an operating other item"
   },
   {
     "id": "34088_is_09",
@@ -105,7 +105,7 @@
     "has_value": true,
     "target": "is.other_op_income_expenses",
     "transform": "other",
-    "reason": "non-service pension expense is an operating cost residual"
+    "reason": "non-service pension expense is an operating other item"
   },
   {
     "id": "34088_is_10",
@@ -117,7 +117,7 @@
     "has_value": true,
     "target": "is.interest_expense",
     "transform": "renamed",
-    "reason": "interest expense maps directly to the canonical line"
+    "reason": "interest expense maps directly to canonical line"
   },
   {
     "id": "34088_is_11",
@@ -129,7 +129,7 @@
     "has_value": true,
     "target": "is.other_op_income_expenses",
     "transform": "other",
-    "reason": "other taxes and duties is an operating cost residual"
+    "reason": "excise and other taxes are operating other expenses"
   },
   {
     "id": "34088_is_12",
@@ -141,7 +141,7 @@
     "has_value": true,
     "target": null,
     "transform": null,
-    "reason": "subtotal of mixed cost lines, no single canonical total-costs item"
+    "reason": "subtotal of costs has no canonical line item"
   },
   {
     "id": "34088_is_13",
@@ -165,7 +165,7 @@
     "has_value": true,
     "target": "is.income_tax",
     "transform": "renamed",
-    "reason": "income tax expense maps directly to income_tax"
+    "reason": "income tax expense maps directly"
   },
   {
     "id": "34088_is_15",
@@ -189,7 +189,7 @@
     "has_value": true,
     "target": "is.noncontr_interest",
     "transform": "renamed",
-    "reason": "net income attributable to NCI is the noncontrolling interest line"
+    "reason": "NCI attribution maps to noncontrolling interest line"
   },
   {
     "id": "34088_is_17",
@@ -201,7 +201,7 @@
     "has_value": true,
     "target": "is.net_income",
     "transform": "renamed",
-    "reason": "net income attributable to ExxonMobil is the parent net income"
+    "reason": "net income attributable to ExxonMobil is the net income line"
   },
   {
     "id": "34088_is_18",
@@ -213,7 +213,7 @@
     "has_value": true,
     "target": "is.basic_eps",
     "transform": "renamed",
-    "reason": "basic EPS per XBRL tag EarningsPerShareBasic"
+    "reason": "XBRL tag confirms basic EPS"
   },
   {
     "id": "34088_is_19",
@@ -225,7 +225,7 @@
     "has_value": true,
     "target": "is.dilutes_eps",
     "transform": "renamed",
-    "reason": "XBRL tag is EarningsPerShareDiluted, maps to diluted EPS"
+    "reason": "XBRL tag indicates diluted EPS despite label"
   },
   {
     "id": "34088_is_20",
@@ -235,9 +235,9 @@
     "label": "Sales and other operating revenue",
     "tag": "defref_srt_ProductOrServiceAxis=xom_SalesAndOtherOperatingRevenueMember",
     "has_value": false,
-    "target": null,
-    "transform": null,
-    "reason": "segment-level revenue detail already included in total revenue"
+    "target": "is.revenue",
+    "transform": "other",
+    "reason": "segment-level sales revenue component of total revenue"
   },
   {
     "id": "34088_is_21",
@@ -249,7 +249,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "section heading with no value, no canonical counterpart"
+    "reason": "section heading with no canonical counterpart"
   },
   {
     "id": "34088_is_22",
@@ -259,9 +259,9 @@
     "label": "Revenues",
     "tag": "defref_us-gaap_Revenues",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "segment revenue component already captured in total revenue"
+    "target": "is.revenue",
+    "transform": "other",
+    "reason": "segment-level revenue component of total revenue"
   },
   {
     "id": "34088_is_23",
@@ -273,7 +273,7 @@
     "has_value": false,
     "target": "is.equity_method_income_loss",
     "transform": "renamed",
-    "reason": "income from equity affiliates is the equity method income line"
+    "reason": "income from equity affiliates is equity method income"
   },
   {
     "id": "34088_is_24",
@@ -285,7 +285,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "section heading with no value, no canonical counterpart"
+    "reason": "section heading with no canonical counterpart"
   },
   {
     "id": "34088_is_25",
@@ -295,9 +295,9 @@
     "label": "Revenues",
     "tag": "defref_us-gaap_Revenues",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "segment revenue component already captured in total revenue"
+    "target": "is.revenue",
+    "transform": "other",
+    "reason": "segment-level revenue component of total revenue"
   },
   {
     "id": "34088_is_26",
@@ -307,9 +307,9 @@
     "label": "Other income",
     "tag": "defref_srt_ProductOrServiceAxis=xom_OtherRevenueMember",
     "has_value": false,
-    "target": "is.other_non_op_income_expenses",
+    "target": "is.other_op_income_expenses",
     "transform": "other",
-    "reason": "other income is a non-operating income residual"
+    "reason": "segment-level other income folded into operating other"
   },
   {
     "id": "34088_is_27",
@@ -321,7 +321,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "section heading with no value, no canonical counterpart"
+    "reason": "section heading with no canonical counterpart"
   },
   {
     "id": "34088_is_28",
@@ -331,8 +331,8 @@
     "label": "Revenues",
     "tag": "defref_us-gaap_Revenues",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "segment revenue component already captured in total revenue"
+    "target": "is.revenue",
+    "transform": "other",
+    "reason": "segment-level revenue component of total revenue"
   }
 ]

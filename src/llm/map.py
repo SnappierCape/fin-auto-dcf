@@ -730,7 +730,6 @@ def main() -> int:
     # Build system prompt with examples.
     records = load_records(src)
     system_prompt = build_system_prompt()
-    print(system_prompt)
 
     # ── Ollama call ──────────────────────────────────────────────────────────
     started = time.monotonic()
