@@ -1,123 +1,123 @@
 {
-    "about":"FAC SIMILE structure demo, not a real company. Invented numbers chosen so all 12 identity checks in checksums[] pass.",
-    "issuer":"ACME Corp (SAMPLE)",
-    "ticker":"ACME",
-    "cik":null,
-    "fiscal_year":2025,
-    "period_end":"2025-12-31",
-    "unit":"USD millions",
-    "statements":{
-        "is":{
-            "revenue":{},
-            "cost_of_revenue":{},
-            "gross_profit":{},
-            "r_d":{}, 
-            "s_g_a":{},
-            "other_op_income_expenses":{},
-            "ebit":{},
-            "d_a":{},
-            "ebitda":{},
-            "interest_expense":{},
-            "interest_income":{},
-            "equity_method_income_loss":{},
-            "other_non_op_income_expenses":{},
-            "ebt":{},
-            "income_tax":{},
-            "other_after_tax":{},
-            "net_consolidated_income":{},
-            "noncontr_interest":{},
-            "net_income":{},
-            "basic_shares":{},
-            "diluted_shares":{},
-            "basic_eps":{},
-            "dilutes_eps":{}
+    "about": "FAC SIMILE structure demo, not a real company. Invented numbers chosen so all 12 identity checks in checksums[] pass.",
+    "issuer": "ACME Corp (SAMPLE)",
+    "ticker": "ACME",
+    "cik": null,
+    "fiscal_year": 2025,
+    "period_end": "2025-12-31",
+    "unit": "USD millions",
+    "statements": {
+        "is": {
+            "revenue": {},
+            "cost_of_revenue": {},
+            "gross_profit": {},
+            "r_d": {}, 
+            "s_g_a": {},
+            "other_op_income_expenses": {},
+            "ebit": {},
+            "d_a": {},
+            "ebitda": {},
+            "interest_expense": {},
+            "interest_income": {},
+            "equity_method_income_loss": {},
+            "other_non_op_income_expenses": {},
+            "ebt": {},
+            "income_tax": {},
+            "other_after_tax": {},
+            "net_consolidated_income": {},
+            "noncontr_interest": {},
+            "net_income": {},
+            "basic_shares": {},
+            "diluted_shares": {},
+            "basic_eps": {},
+            "dilutes_eps": {}
         },
-        "current_assets":{
-            "cash_and_eq":{},
-            "st_investments":{},
-            "a_r":{},
-            "inv_raw":{},
-            "inv_progress":{},
-            "inv_finished":{},
-            "other_current_asset":{},
-            "total_current_assets":{}   
+        "current_assets": {
+            "cash_and_eq": {},
+            "st_investments": {},
+            "a_r": {},
+            "inv_raw": {},
+            "inv_progress": {},
+            "inv_finished": {},
+            "other_current_asset": {},
+            "total_current_assets": {}   
         },
-        "non_current_assets":{
-            "p_p_e":{},
-            "lease":{},
-            "goodwill":{},
-            "intangibles":{},
-            "deferred_tax":{},
-            "other_non_current_assets":{},
-            "total_non_current_assets":{}
+        "non_current_assets": {
+            "p_p_e": {},
+            "lease": {},
+            "goodwill": {},
+            "intangibles": {},
+            "deferred_tax": {},
+            "other_non_current_assets": {},
+            "total_non_current_assets": {}
         },
-        "current_liab":{
-            "st_debt":{},
-            "a_p":{},
-            "dividends_payable":{},
-            "tax_payable":{},
-            "accrued_liab":{},
-            "current_lease_liab":{},
-            "other_current_liab":{},
-            "total_current_liab":{}
+        "current_liab": {
+            "st_debt": {},
+            "a_p": {},
+            "dividends_payable": {},
+            "tax_payable": {},
+            "accrued_liab": {},
+            "current_lease_liab": {},
+            "other_current_liab": {},
+            "total_current_liab": {}
         },
-        "non_current_liab":{
-            "lt_debt":{},
-            "bonds":{},
-            "deferred_tax":{},
-            "non_current_lease_liab":{},
-            "pension_liab":{},
-            "other_non_current_liab":{},
-            "total_non_current_liabilities":{}
+        "non_current_liab": {
+            "lt_debt": {},
+            "bonds": {},
+            "deferred_tax": {},
+            "non_current_lease_liab": {},
+            "pension_liab": {},
+            "other_non_current_liab": {},
+            "total_non_current_liabilities": {}
         },
-        "equity":{
-            "share_capital":{},
-            "retained_earnings":{},
-            "acc_other_comprehensive_income_loss":{},
-            "reserves":{},
-            "noncontrolling_interests":{},
-            "total_equity":{}
+        "equity": {
+            "share_capital": {},
+            "retained_earnings": {},
+            "acc_other_comprehensive_income_loss": {},
+            "reserves": {},
+            "noncontrolling_interests": {},
+            "total_equity": {}
         },
-        "cfo":{
-            "net_income":{},
-            "d_a":{},
-            "nwc_a_p":{},
-            "nwc_a_r":{},
-            "nwc_inv":{},
-            "nwc_tax_payable":{},
-            "nwc_dividends_payable":{},
-            "nwc_other":{},
-            "other_cfo":{},
-            "total_cfo":{}
+        "cfo": {
+            "net_income": {},
+            "d_a": {},
+            "nwc_a_p": {},
+            "nwc_a_r": {},
+            "nwc_inv": {},
+            "nwc_tax_payable": {},
+            "nwc_dividends_payable": {},
+            "nwc_other": {},
+            "other_cfo": {},
+            "total_cfo": {}
         },
-        "cfi":{
-            "capex":{},
-            "purchases_invest":{},
-            "proceedes_invest":{},
-            "other_cfi":{},
-            "total_cfi":{}
+        "cfi": {
+            "capex": {},
+            "purchases_invest": {},
+            "proceedes_invest": {},
+            "other_cfi": {},
+            "total_cfi": {}
         },
-        "cff":{
-        "debt_issuance":{},
-        "debt_repayment":{},
-        "equity_issuance":{},
-        "share_repurchases":{},
-        "other_cff":{},
-        "total_cff":{}
+        "cff": {
+        "debt_issuance": {},
+        "debt_repayment": {},
+        "equity_issuance": {},
+        "share_repurchases": {},
+        "other_cff": {},
+        "total_cff": {}
         }
     },
-    "checksums":[
-        {"id":1,"lhs":400,"rhs":400,"pass":true,"expr":"co_rincl_da 400 = co_rexcl_da 320 + DA 80"},
-        {"id":2,"lhs":600,"rhs":600,"pass":true,"expr":"GP 600 = rev 1000 - co_rincl_da 400 - other_co_r 0"},
-        {"id":3,"lhs":220,"rhs":220,"pass":true,"expr":"EBIT 220 = GP 600 - R&D 150 - SG&A 200 - other_opex 30"},
-        {"id":4,"lhs":240,"rhs":240,"pass":true,"expr":"EBT 240 = EBIT 220 + net_int_exp 20 + other_non_op 40 + other_non_op2 0"},
-        {"id":5,"lhs":192,"rhs":192,"pass":true,"expr":"net_cons 192 = EBT 240 - tax 48 + other_after_tax 0"},
-        {"id":6,"lhs":184,"rhs":184,"pass":true,"expr":"net_attr 184 = net_cons 192 - minority 8"},
-        {"id":7,"lhs":350,"rhs":350,"pass":true,"tolerance":0.01,"expr":"net_pp&E 350 = gross 520 - accum_dep 170"},
-        {"id":8,"lhs":960,"rhs":960,"pass":true,"expr":"TA 960 = CA 415 + NCA 545"},
-        {"id":9,"lhs":960,"rhs":960,"pass":true,"expr":"TA 960 = CL 215 + NCL 535 + Eq 210"},
-        {"id":10,"lhs":99,"rhs":99,"pass":true,"expr":"net_cash 99 = CFO 253 + CFI -115 + CFF -39"},
-        {"id":11,"lhs":99,"rhs":99,"pass":true,"tolerance":0.01,"expr":"d_cash(CFS) 99 = d_cash(BS) 99"},
-        {"id":12,"pass":true,"expr":"every non-zero `other` line above carries a provenance string"}
+    "checksums": [
+        {"id": 1, "lhs": 400, "rhs": 400, "pass": true, "expr": "co_rincl_da 400 = co_rexcl_da 320 + DA 80"},
+        {"id": 2, "lhs": 600, "rhs": 600, "pass": true, "expr": "GP 600 = rev 1000 - co_rincl_da 400 - other_co_r 0"},
+        {"id": 3, "lhs": 220, "rhs": 220, "pass": true, "expr": "EBIT 220 = GP 600 - R&D 150 - SG&A 200 - other_opex 30"},
+        {"id": 4, "lhs": 240, "rhs": 240, "pass": true, "expr": "EBT 240 = EBIT 220 + net_int_exp 20 + other_non_op 40 + other_non_op2 0"},
+        {"id": 5, "lhs": 192, "rhs": 192, "pass": true, "expr": "net_cons 192 = EBT 240 - tax 48 + other_after_tax 0"},
+        {"id": 6, "lhs": 184, "rhs": 184, "pass": true, "expr": "net_attr 184 = net_cons 192 - minority 8"},
+        {"id": 7, "lhs": 350, "rhs": 350, "pass": true, "tolerance": 0.01, "expr": "net_pp&E 350 = gross 520 - accum_dep 170"},
+        {"id": 8, "lhs": 960, "rhs": 960, "pass": true, "expr": "TA 960 = CA 415 + NCA 545"},
+        {"id": 9, "lhs": 960, "rhs": 960, "pass": true, "expr": "TA 960 = CL 215 + NCL 535 + Eq 210"},
+        {"id": 10, "lhs": 99, "rhs": 99, "pass": true, "expr": "net_cash 99 = CFO 253 + CFI -115 + CFF -39"},
+        {"id": 11, "lhs": 99, "rhs": 99, "pass": true, "tolerance": 0.01, "expr": "d_cash(CFS) 99 = d_cash(BS) 99"},
+        {"id": 12, "pass": true, "expr": "every non-zero `other` line above carries a provenance string"}
     ]
 }

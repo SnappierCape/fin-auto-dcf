@@ -18,6 +18,14 @@ carries:
 
 Use neighbouring rows and the level structure as context whenever a label is ambiguous on its own.
 
+## Canonical schema
+
+The canonical schema in which you map financial items is structured in <bucket> and <item>. A bucket contains multiple items. The official possible names of the buckets and items are listed below; you do not have to necessarily use all the possible items, but you can't create other items than the ones provided.
+
+```
+<canonical_names_anchor>
+```
+
 ## Task
 
 For every record, either:
@@ -82,4 +90,4 @@ no further indentation, no comments.
 
 The 3 hand-reclassified examples below — input (converted records) and output (mapped json) — are part of this contract and give you real-world human-made mapping decisions. Follow their mapping style, their transform choices, their reason style, and their output shape exactly.
 
-<start_few_shots>
+<few_shots_anchor>
