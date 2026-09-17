@@ -1,0 +1,61 @@
+{
+    "cik": "0000077476",
+    "issuer": "PEPSICO INC",
+    "tickers": [
+        "PEP"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-03",
+    "report_date": "2025-12-27",
+    "accession": "0000077476-26-000007",
+    "primary_document": "pep-20251227.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000007/pep-20251227.htm",
+    "sha256": "7b93bbae6ad51b622e028281184f3756c9420ff87e03b2ebebc4a44ec51df22a",
+    "bytes": 3681486,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statement of Income",
+            "local_file": "0000077476_2025-12-27_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000007/R3.htm",
+            "sha256": "e0ff2708c366b5b1793275b937a5fa84308bb0ef0fcf56d00b36b29054551e72",
+            "bytes": 113535,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Balance Sheet",
+            "local_file": "0000077476_2025-12-27_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000007/R6.htm",
+            "sha256": "6ea330a2d5a459c587a7a9c08c8eabbeef509ef7189f8146ed002a1b6f4fc11c",
+            "bytes": 153513,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statement of Cash Flows",
+            "local_file": "0000077476_2025-12-27_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000007/R5.htm",
+            "sha256": "b35106e40ac300692ca2126b9ed12aec61f20ebb7c406959c3fcf7d8f4c229ef",
+            "bytes": 121914,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:03:17Z"
+}

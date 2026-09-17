@@ -1,0 +1,61 @@
+{
+    "cik": "0001341766",
+    "issuer": "Celsius Holdings, Inc.",
+    "tickers": [
+        "CELH"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-03-02",
+    "report_date": "2025-12-31",
+    "accession": "0001341766-26-000024",
+    "primary_document": "celh-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1341766/000134176626000024/celh-20251231.htm",
+    "sha256": "3bd116865ff78b74c92b8f223ceccef3b68aa1c76e0f0e6ee1d189f6a190ac87",
+    "bytes": 2307701,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations and Comprehensive Income",
+            "local_file": "0001341766_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1341766/000134176626000024/R5.htm",
+            "sha256": "a47a5d3b24c26f2f1fa610fe3edde860bdb5cc50f5c81a38bf090ac69dd0d8c7",
+            "bytes": 117419,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001341766_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1341766/000134176626000024/R3.htm",
+            "sha256": "241e6f141c0019761b7ec14172bcf23b4b6f6fb24128b4465b0bf4df5cadf095",
+            "bytes": 149836,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001341766_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1341766/000134176626000024/R9.htm",
+            "sha256": "f56788c26ed0f30d0dc5fa6d880d22c8a22f281593ec7d76d8695cc9bca5c922",
+            "bytes": 146906,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T14:59:45Z"
+}

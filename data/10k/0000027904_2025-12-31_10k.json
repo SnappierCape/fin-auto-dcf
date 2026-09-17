@@ -1,0 +1,62 @@
+{
+    "cik": "0000027904",
+    "issuer": "DELTA AIR LINES, INC.",
+    "tickers": [
+        "DAL"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-11",
+    "report_date": "2025-12-31",
+    "accession": "0000027904-26-000013",
+    "primary_document": "dal-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/27904/000002790426000013/dal-20251231.htm",
+    "sha256": "d04c940b57746e25488a8dcade7e7b27639fc6f111862437ba9c06dcea461276",
+    "bytes": 2534046,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0000027904_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/27904/000002790426000013/R5.htm",
+            "sha256": "79a7f3cecb3008ac6d881e34ced85c3c001f88d8955ccdca980573b3ef01e0a1",
+            "bytes": 108272,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000027904_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/27904/000002790426000013/R3.htm",
+            "sha256": "de03f06e675bf2d764eeb5ef88cc33a276f2bc5036a9472d5285a2a322f55b7b",
+            "bytes": 140263,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000027904_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/27904/000002790426000013/R7.htm",
+            "sha256": "4605915d47693460d3bb3487b0320fcf6d909678dc5a894db9e60ca85a77e00c",
+            "bytes": 96550,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T14:55:41Z"
+}

@@ -1,0 +1,66 @@
+{
+    "cik": "0000732717",
+    "issuer": "AT&T INC.",
+    "tickers": [
+        "T",
+        "TBB",
+        "T-PA",
+        "T-PC"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-09",
+    "report_date": "2025-12-31",
+    "accession": "0000732717-26-000120",
+    "primary_document": "t-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/732717/000073271726000120/t-20251231.htm",
+    "sha256": "01c1c129368cf58b57adb4204adf81f862af8346191689a54ed75d199b3e5ca3",
+    "bytes": 3931782,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statements Of Income",
+            "local_file": "0000732717_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/732717/000073271726000120/R3.htm",
+            "sha256": "ec94b6c89e5fa7d6f6d61e84c931ab6b62e063ffa2a29b07683773668a07b270",
+            "bytes": 134270,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000732717_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/732717/000073271726000120/R6.htm",
+            "sha256": "f9b8f2d5b2da1233c0c31a1e4ada82538e025146d21e5a7ef99b5960c87be2f1",
+            "bytes": 143981,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements Of Cash Flows",
+            "local_file": "0000732717_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/732717/000073271726000120/R8.htm",
+            "sha256": "045b3a973e9e3189f0ce59e3bc650141b947043d3a2dd0bb0ee8689a21f06381",
+            "bytes": 110175,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:04:48Z"
+}

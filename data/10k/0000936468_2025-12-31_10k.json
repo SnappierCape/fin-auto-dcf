@@ -1,0 +1,63 @@
+{
+    "cik": "0000936468",
+    "issuer": "LOCKHEED MARTIN CORP",
+    "tickers": [
+        "LMT"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-01-29",
+    "report_date": "2025-12-31",
+    "accession": "0001628280-26-004195",
+    "primary_document": "lmt-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/lmt-20251231.htm",
+    "sha256": "252829a67a8ce7821a595295a9a20353f8a05c18a2ff989a9b21983a1ea51b32",
+    "bytes": 2909179,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statements of Earnings",
+            "local_file": "0000936468_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/R3.htm",
+            "sha256": "ca0f2057150869639d2193e1cfa4990064ae0dd1ab2618f3d075ddb17fa6bffc",
+            "bytes": 101998,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000936468_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/R6.htm",
+            "sha256": "7e1789dd8a827941e50c12d3b3fe6e18873170430c3efe0c674f61d14617a91d",
+            "bytes": 114269,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000936468_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/R8.htm",
+            "sha256": "4100ef65fcf79cea8b194d9f879227af29643066dfccba27c88999377c515f8a",
+            "bytes": 81956,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:00:27Z"
+}

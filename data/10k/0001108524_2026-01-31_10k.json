@@ -1,0 +1,62 @@
+{
+    "cik": "0001108524",
+    "issuer": "Salesforce, Inc.",
+    "tickers": [
+        "CRM"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-03-02",
+    "report_date": "2026-01-31",
+    "accession": "0001108524-26-000060",
+    "primary_document": "crm-20260131.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/crm-20260131.htm",
+    "sha256": "d606b8cc64176cbfa8c75355a9c935ec83f6b8374a87f94f3747941633fa8d25",
+    "bytes": 2570278,
+    "statements": {
+        "is": {
+            "source_html_file": "R5.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0001108524_2026-01-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/R5.htm",
+            "sha256": "5477dcc927402c0b52586eed5ad96e2b0f07cd0e96210783de1034d4f53fd9a9",
+            "bytes": 121782,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001108524_2026-01-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/R3.htm",
+            "sha256": "ca61f2b6316e070c943364b6fdf187c7f8a2eb08666b67fade25f3f3fb7b843b",
+            "bytes": 120904,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001108524_2026-01-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/R9.htm",
+            "sha256": "6f0d9d829580db17198f243f0e960d0881dd672cda79c97a5e54e8625ee8ffd3",
+            "bytes": 102197,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T14:55:12Z"
+}
