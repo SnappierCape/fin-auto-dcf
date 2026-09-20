@@ -44,10 +44,8 @@ Guidance for choosing (also look at the few-shoots below):
 
 - renamed        — the filing's item with the pipeline's canonical name, in the canonical order.
 - reclassified   — the item is reassigned into a different bucket than its naive reading suggests.
-- other          — the row is folded into the bucket's residual "other" line.
+- other          — any time the row is folded into the bucket's residual "other" line.
 - subtotal       — the row is a total/subtotal of other mapped rows.
-- computed       — the value is derived, not reported directly in the original statement (e.g. EPS, total interest-bearing debt).
-- aggregated     ─ 2 or more values from the filing are summed together in the same item in the canonical schema.
 - null           ─ there is no counterpart for this item.
 
 ## Decision rules (highest priority first)
