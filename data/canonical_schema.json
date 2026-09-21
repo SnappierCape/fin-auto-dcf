@@ -39,6 +39,7 @@
             "inv_raw": {},
             "inv_progress": {},
             "inv_finished": {},
+            "total_inv": {},
             "other_current_asset": {},
             "total_current_assets": {}   
         },
@@ -98,12 +99,12 @@
             "total_cfi": {}
         },
         "cff": {
-        "debt_issuance": {},
-        "debt_repayment": {},
-        "equity_issuance": {},
-        "share_repurchases": {},
-        "other_cff": {},
-        "total_cff": {}
+            "debt_issuance": {},
+            "debt_repayment": {},
+            "equity_issuance": {},
+            "share_repurchases": {},
+            "other_cff": {},
+            "total_cff": {}
         }
     },
     "checksums": [

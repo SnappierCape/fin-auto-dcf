@@ -57,6 +57,11 @@ Guidance for choosing (also look at the few-shoots below):
 5. Do not use has_value for any decision; it only records that numbers exist in the filing.
 6. Reasons are <20 words essays, concise and specific.
 
+## Things to be aware of
+
+1. Sometimes the original statements only contain the total inventory in the balance sheet, in that case the 3 single components must not be mapped.
+2. It is important to understand when to stop: sometimes at the end of the statement there are supplemental disclosures and repeated items, these must not be mapped to avoid double counting.
+
 ## Output contract
 
 Reply with a single JSON dict and nothing else — no prose, no markdown,
