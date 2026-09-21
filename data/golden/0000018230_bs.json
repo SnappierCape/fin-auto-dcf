@@ -48,6 +48,7 @@
     "reason": "finance receivables folded into residual other current asset"
   },
   {
+    "//comment": "Why did it put 'renamed' in the transform if item 04 has 'other'?",
     "id": "18230_bs_05",
     "stmt": "bs",
     "order": 5,
@@ -60,6 +61,7 @@
     "reason": "prepaid expenses and other current assets is the canonical residual line"
   },
   {
+    "//comment": "In this case we only have the total 'inventory' label, so we need a canonical item to reclassify it into",
     "id": "18230_bs_06",
     "stmt": "bs",
     "order": 6,
@@ -67,9 +69,9 @@
     "label": "Inventories",
     "tag": "defref_us-gaap_InventoryNet",
     "has_value": true,
-    "target": "current_assets.inv_total",
-    "transform": "renamed",
-    "reason": "undifferentiated inventory total maps to inv_total per schema guidance"
+    "target": null,
+    "transform": null,
+    "reason": "undifferentiated inventory total; cannot assign to inv_raw, inv_progress, or inv_finished"
   },
   {
     "id": "18230_bs_07",
@@ -105,7 +107,7 @@
     "has_value": true,
     "target": "non_current_assets.other_non_current_assets",
     "transform": "other",
-    "reason": "long-term trade receivables folded into residual other non-current assets"
+    "reason": "non-current trade receivables folded into residual other"
   },
   {
     "id": "18230_bs_10",
@@ -117,7 +119,7 @@
     "has_value": true,
     "target": "non_current_assets.other_non_current_assets",
     "transform": "other",
-    "reason": "long-term finance receivables folded into residual other non-current assets"
+    "reason": "non-current finance receivables folded into residual other"
   },
   {
     "id": "18230_bs_11",
@@ -156,6 +158,7 @@
     "reason": "goodwill maps directly to the canonical goodwill line"
   },
   {
+    "//comment": "Again, same issue with the 'other' category",
     "id": "18230_bs_14",
     "stmt": "bs",
     "order": 14,
@@ -264,6 +267,7 @@
     "reason": "dividends payable is the canonical dividends_payable line"
   },
   {
+    "//comment": "Same 'other' issue",
     "id": "18230_bs_23",
     "stmt": "bs",
     "order": 23,
@@ -324,6 +328,7 @@
     "reason": "postemployment benefit liability is the canonical pension_liab line"
   },
   {
+    "//comment": "Other",
     "id": "18230_bs_28",
     "stmt": "bs",
     "order": 28,
@@ -372,7 +377,6 @@
     "reason": "section heading with no numeric value or schema counterpart"
   },
   {
-    "//comment": "Not sure about this.",
     "id": "18230_bs_32",
     "stmt": "bs",
     "order": 32,
@@ -380,9 +384,9 @@
     "label": "Common stock, par value (in dollars per share)",
     "tag": "defref_us-gaap_CommonStockParOrStatedValuePerShare",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "par value per share is a rate disclosure, not a balance sheet amount"
+    "target": "equity.share_capital",
+    "transform": "renamed",
+    "reason": "common stock par value is a component of share capital"
   },
   {
     "id": "18230_bs_33",
@@ -394,7 +398,7 @@
     "has_value": true,
     "target": "equity.share_capital",
     "transform": "renamed",
-    "reason": "common stock at paid-in amount is the primary share capital component"
+    "reason": "common stock and paid-in capital is the primary share capital component"
   },
   {
     "id": "18230_bs_34",
@@ -406,7 +410,7 @@
     "has_value": true,
     "target": "equity.share_capital",
     "transform": "renamed",
-    "reason": "treasury stock at cost is a component of share capital"
+    "reason": "treasury stock at cost is a contra component of share capital"
   },
   {
     "id": "18230_bs_35",
@@ -418,7 +422,7 @@
     "has_value": true,
     "target": "equity.retained_earnings",
     "transform": "renamed",
-    "reason": "profit employed in the business is retained earnings under XBRL tag"
+    "reason": "profit employed in the business is retained earnings with alternate label"
   },
   {
     "id": "18230_bs_36",
@@ -478,7 +482,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "segment heading in supplemental disclosure; no schema counterpart"
+    "reason": "segment heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_41",
@@ -490,9 +494,10 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
+    "//comment": "This is a repetition of the st_liab item, dont know why it is here, also the items below are just a recap that the model reclassified again",
     "id": "18230_bs_42",
     "stmt": "bs",
     "order": 42,
@@ -500,9 +505,9 @@
     "label": "Short-term borrowings",
     "tag": "defref_us-gaap_ShortTermBorrowings",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "current_liab.st_debt",
+    "transform": "renamed",
+    "reason": "segment short-term borrowings is the canonical st_debt line"
   },
   {
     "id": "18230_bs_43",
@@ -514,7 +519,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_44",
@@ -524,9 +529,9 @@
     "label": "Long-term debt due within one year",
     "tag": "defref_us-gaap_LongTermDebtAndCapitalLeaseObligationsCurrent",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "current_liab.st_debt",
+    "transform": "renamed",
+    "reason": "current portion of long-term debt is the canonical st_debt line"
   },
   {
     "id": "18230_bs_45",
@@ -538,7 +543,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_46",
@@ -548,9 +553,9 @@
     "label": "Long-term debt due after one year",
     "tag": "defref_us-gaap_LongTermDebtAndCapitalLeaseObligations",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "non_current_liab.lt_debt",
+    "transform": "renamed",
+    "reason": "long-term debt due after one year is the canonical lt_debt line"
   },
   {
     "id": "18230_bs_47",
@@ -562,7 +567,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "segment heading in supplemental disclosure; no schema counterpart"
+    "reason": "segment heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_48",
@@ -574,7 +579,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_49",
@@ -584,9 +589,9 @@
     "label": "Short-term borrowings",
     "tag": "defref_us-gaap_ShortTermBorrowings",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "current_liab.st_debt",
+    "transform": "renamed",
+    "reason": "segment short-term borrowings is the canonical st_debt line"
   },
   {
     "id": "18230_bs_50",
@@ -598,7 +603,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_51",
@@ -608,9 +613,9 @@
     "label": "Long-term debt due within one year",
     "tag": "defref_us-gaap_LongTermDebtAndCapitalLeaseObligationsCurrent",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "current_liab.st_debt",
+    "transform": "renamed",
+    "reason": "current portion of long-term debt is the canonical st_debt line"
   },
   {
     "id": "18230_bs_52",
@@ -622,7 +627,7 @@
     "has_value": false,
     "target": null,
     "transform": null,
-    "reason": "supplemental segment disclosure heading; avoid double counting"
+    "reason": "section heading with no numeric value or schema counterpart"
   },
   {
     "id": "18230_bs_53",
@@ -632,8 +637,8 @@
     "label": "Long-term debt due after one year",
     "tag": "defref_us-gaap_LongTermDebtAndCapitalLeaseObligations",
     "has_value": true,
-    "target": null,
-    "transform": null,
-    "reason": "supplemental segment disclosure; avoid double counting"
+    "target": "non_current_liab.lt_debt",
+    "transform": "renamed",
+    "reason": "long-term debt due after one year is the canonical lt_debt line"
   }
 ]

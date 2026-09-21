@@ -59,7 +59,7 @@ Guidance for choosing (also look at the few-shoots below):
 
 ## Things to be aware of
 
-1. Sometimes the original statements only contain the total inventory in the balance sheet, in that case the 3 single components must not be mapped.
+1. Sometimes the original statements only contain the total inventory in the balance sheet, in that case it has to be mapped to "inv_total".
 2. It is important to understand when to stop: sometimes at the end of the statement there are supplemental disclosures and repeated items, these must not be mapped to avoid double counting.
 
 ## Output contract
