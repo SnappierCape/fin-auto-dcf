@@ -10,7 +10,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "858877_bs_02",
@@ -56,9 +56,9 @@
             "label": "Inventories",
             "tag": "defref_us-gaap_InventoryNet",
             "has_value": true,
-            "target": null,
-            "transform": null,
-            "reason": "undifferentiated inventory total; cannot assign to inv_raw, inv_progress, or inv_finished"
+            "target": "current_assets.inv_total",
+            "transform": "renamed",
+            "reason": "only total inventory disclosed, maps to inv_total"
         },
         {
             "id": "858877_bs_06",
@@ -69,8 +69,8 @@
             "tag": "defref_us-gaap_NotesAndLoansReceivableNetCurrent",
             "has_value": true,
             "target": "current_assets.other_current_asset",
-            "transform": "other",
-            "reason": "financing receivables folded into residual other current asset"
+            "transform": "reclassified",
+            "reason": "financing receivables has no dedicated slot, falls under other current asset"
         },
         {
             "id": "858877_bs_07",
@@ -82,7 +82,7 @@
             "has_value": true,
             "target": "current_assets.other_current_asset",
             "transform": "renamed",
-            "reason": "other current assets is the canonical residual line"
+            "reason": "other current assets is the canonical catch-all line"
         },
         {
             "id": "858877_bs_08",
@@ -117,8 +117,8 @@
             "tag": "defref_us-gaap_NotesAndLoansReceivableNetNoncurrent",
             "has_value": true,
             "target": "non_current_assets.other_non_current_assets",
-            "transform": "other",
-            "reason": "non-current financing receivables folded into residual other"
+            "transform": "reclassified",
+            "reason": "noncurrent financing receivables has no dedicated slot, falls under other"
         },
         {
             "id": "858877_bs_11",
@@ -166,7 +166,7 @@
             "has_value": true,
             "target": "non_current_assets.other_non_current_assets",
             "transform": "renamed",
-            "reason": "other assets is the canonical residual non-current asset line"
+            "reason": "other noncurrent assets is the canonical catch-all line"
         },
         {
             "id": "858877_bs_15",
@@ -190,7 +190,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "858877_bs_17",
@@ -249,8 +249,8 @@
             "tag": "defref_us-gaap_ContractWithCustomerLiabilityCurrent",
             "has_value": true,
             "target": "current_liab.other_current_liab",
-            "transform": "other",
-            "reason": "deferred revenue folded into residual other current liabilities"
+            "transform": "reclassified",
+            "reason": "deferred revenue has no dedicated slot, falls under other current liab"
         },
         {
             "id": "858877_bs_22",
@@ -262,7 +262,7 @@
             "has_value": true,
             "target": "current_liab.other_current_liab",
             "transform": "renamed",
-            "reason": "other current liabilities is the canonical residual line"
+            "reason": "other current liabilities is the canonical catch-all line"
         },
         {
             "id": "858877_bs_23",
@@ -297,8 +297,8 @@
             "tag": "defref_us-gaap_AccruedIncomeTaxesNoncurrent",
             "has_value": true,
             "target": "non_current_liab.other_non_current_liab",
-            "transform": "other",
-            "reason": "non-current tax payable folded into residual other"
+            "transform": "reclassified",
+            "reason": "noncurrent income taxes payable has no dedicated slot, falls under other"
         },
         {
             "id": "858877_bs_26",
@@ -309,8 +309,8 @@
             "tag": "defref_us-gaap_ContractWithCustomerLiabilityNoncurrent",
             "has_value": true,
             "target": "non_current_liab.other_non_current_liab",
-            "transform": "other",
-            "reason": "non-current deferred revenue folded into residual other"
+            "transform": "reclassified",
+            "reason": "noncurrent deferred revenue has no dedicated slot, falls under other"
         },
         {
             "id": "858877_bs_27",
@@ -322,7 +322,7 @@
             "has_value": true,
             "target": "non_current_liab.other_non_current_liab",
             "transform": "renamed",
-            "reason": "other long-term liabilities is the canonical residual line"
+            "reason": "other long-term liabilities is the canonical catch-all line"
         },
         {
             "id": "858877_bs_28",
@@ -346,7 +346,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "note reference with no value; no schema counterpart"
+            "reason": "commitments and contingencies reference, no numeric value, no schema counterpart"
         },
         {
             "id": "858877_bs_30",
@@ -358,7 +358,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "858877_bs_31",
@@ -369,8 +369,8 @@
             "tag": "defref_us-gaap_PreferredStockValue",
             "has_value": true,
             "target": "equity.share_capital",
-            "transform": "renamed",
-            "reason": "preferred stock is a component of share capital"
+            "transform": "reclassified",
+            "reason": "preferred stock is part of share capital in the canonical schema"
         },
         {
             "id": "858877_bs_32",
@@ -382,7 +382,7 @@
             "has_value": true,
             "target": "equity.share_capital",
             "transform": "renamed",
-            "reason": "common stock and APIC is the primary share capital component"
+            "reason": "common stock and APIC is the canonical share_capital line"
         },
         {
             "id": "858877_bs_33",
@@ -406,7 +406,7 @@
             "has_value": true,
             "target": "equity.acc_other_comprehensive_income_loss",
             "transform": "renamed",
-            "reason": "accumulated OCI is the canonical acc_other_comprehensive_income_loss line"
+            "reason": "accumulated other comprehensive loss is the canonical AOCI line"
         },
         {
             "id": "858877_bs_35",
@@ -430,7 +430,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "total liabilities and equity has no counterpart in the canonical schema"
+            "reason": "grand total liabilities and equity has no counterpart in the schema"
         }
     ]
 }

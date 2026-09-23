@@ -1,4 +1,4 @@
-{   
+{
     "mappings": [
         {
             "id": "104169_cf_01",
@@ -10,7 +10,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_02",
@@ -34,7 +34,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_04",
@@ -57,8 +57,8 @@
             "tag": "defref_us-gaap_GainLossOnInvestments",
             "has_value": true,
             "target": "cfo.other_cfo",
-            "transform": "other",
-            "reason": "investment gains/losses folded into residual other_cfo"
+            "transform": "reclassified",
+            "reason": "investment gains/losses adjustment has no dedicated slot, falls under other_cfo"
         },
         {
             "id": "104169_cf_06",
@@ -69,8 +69,8 @@
             "tag": "defref_us-gaap_IncreaseDecreaseInDeferredIncomeTaxes",
             "has_value": true,
             "target": "cfo.other_cfo",
-            "transform": "other",
-            "reason": "deferred income taxes folded into residual other_cfo"
+            "transform": "reclassified",
+            "reason": "deferred income taxes adjustment has no dedicated slot, falls under other_cfo"
         },
         {
             "id": "104169_cf_07",
@@ -82,7 +82,7 @@
             "has_value": true,
             "target": "cfo.other_cfo",
             "transform": "renamed",
-            "reason": "other operating activities is the canonical other_cfo line"
+            "reason": "other operating activities is the canonical other_cfo catch-all"
         },
         {
             "id": "104169_cf_08",
@@ -94,7 +94,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_09",
@@ -141,8 +141,8 @@
             "tag": "defref_us-gaap_IncreaseDecreaseInAccruedLiabilities",
             "has_value": true,
             "target": "cfo.nwc_other",
-            "transform": "other",
-            "reason": "accrued liabilities folded into residual nwc_other"
+            "transform": "reclassified",
+            "reason": "accrued liabilities change has no dedicated slot, falls under nwc_other"
         },
         {
             "id": "104169_cf_13",
@@ -154,7 +154,7 @@
             "has_value": true,
             "target": "cfo.nwc_tax_payable",
             "transform": "renamed",
-            "reason": "accrued income taxes is the canonical nwc_tax_payable line"
+            "reason": "accrued income taxes change is the canonical nwc_tax_payable line"
         },
         {
             "id": "104169_cf_14",
@@ -178,7 +178,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_16",
@@ -201,8 +201,8 @@
             "tag": "defref_us-gaap_ProceedsFromSaleOfPropertyPlantAndEquipment",
             "has_value": true,
             "target": "cfi.other_cfi",
-            "transform": "other",
-            "reason": "PPE disposal proceeds folded into residual other_cfi"
+            "transform": "reclassified",
+            "reason": "proceeds from PPE disposal has no dedicated slot, falls under other_cfi"
         },
         {
             "id": "104169_cf_18",
@@ -214,7 +214,7 @@
             "has_value": true,
             "target": "cfi.proceedes_invest",
             "transform": "renamed",
-            "reason": "proceeds from investment disposal is the canonical proceedes_invest line"
+            "reason": "proceeds from disposal of strategic investments is the canonical proceedes_invest line"
         },
         {
             "id": "104169_cf_19",
@@ -225,8 +225,8 @@
             "tag": "defref_us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
             "has_value": true,
             "target": "cfi.other_cfi",
-            "transform": "other",
-            "reason": "business acquisition payments folded into residual other_cfi"
+            "transform": "reclassified",
+            "reason": "business acquisitions are not financial investments, falls under other_cfi"
         },
         {
             "id": "104169_cf_20",
@@ -238,7 +238,7 @@
             "has_value": true,
             "target": "cfi.other_cfi",
             "transform": "renamed",
-            "reason": "other investing activities is the canonical other_cfi line"
+            "reason": "other investing activities is the canonical other_cfi catch-all"
         },
         {
             "id": "104169_cf_21",
@@ -250,7 +250,7 @@
             "has_value": true,
             "target": "cfi.total_cfi",
             "transform": "subtotal",
-            "reason": "net cash from investing activities is the cfi bucket subtotal"
+            "reason": "net cash used in investing activities is the cfi bucket subtotal"
         },
         {
             "id": "104169_cf_22",
@@ -262,7 +262,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_23",
@@ -273,8 +273,8 @@
             "tag": "defref_us-gaap_ProceedsFromRepaymentsOfShortTermDebt",
             "has_value": true,
             "target": "cff.other_cff",
-            "transform": "other",
-            "reason": "net short-term borrowing change folded into residual other_cff"
+            "transform": "reclassified",
+            "reason": "net change in short-term borrowings is a net figure, falls under other_cff"
         },
         {
             "id": "104169_cf_24",
@@ -309,8 +309,8 @@
             "tag": "defref_us-gaap_PaymentsOfDividendsCommonStock",
             "has_value": true,
             "target": "cff.other_cff",
-            "transform": "other",
-            "reason": "dividends paid folded into residual other_cff"
+            "transform": "reclassified",
+            "reason": "dividends paid has no dedicated slot in cff, falls under other_cff"
         },
         {
             "id": "104169_cf_27",
@@ -333,8 +333,8 @@
             "tag": "defref_us-gaap_PaymentsOfDividendsMinorityInterest",
             "has_value": true,
             "target": "cff.other_cff",
-            "transform": "other",
-            "reason": "dividends to noncontrolling interest folded into residual other_cff"
+            "transform": "reclassified",
+            "reason": "dividends to noncontrolling interest has no dedicated slot, falls under other_cff"
         },
         {
             "id": "104169_cf_29",
@@ -345,8 +345,8 @@
             "tag": "defref_wmt_PurchaseofNoncontrollingInterest",
             "has_value": true,
             "target": "cff.other_cff",
-            "transform": "other",
-            "reason": "purchase of noncontrolling interest folded into residual other_cff"
+            "transform": "reclassified",
+            "reason": "purchase of noncontrolling interest has no dedicated slot, falls under other_cff"
         },
         {
             "id": "104169_cf_30",
@@ -356,9 +356,9 @@
             "label": "Sale of subsidiary stock",
             "tag": "defref_us-gaap_ProceedsFromIssuanceOrSaleOfEquity",
             "has_value": true,
-            "target": "cff.equity_issuance",
-            "transform": "renamed",
-            "reason": "sale of subsidiary stock is the canonical equity_issuance line"
+            "target": "cff.other_cff",
+            "transform": "reclassified",
+            "reason": "sale of subsidiary stock is not parent equity issuance, falls under other_cff"
         },
         {
             "id": "104169_cf_31",
@@ -370,7 +370,7 @@
             "has_value": true,
             "target": "cff.other_cff",
             "transform": "renamed",
-            "reason": "other financing activities is the canonical other_cff line"
+            "reason": "other financing activities is the canonical other_cff catch-all"
         },
         {
             "id": "104169_cf_32",
@@ -382,7 +382,7 @@
             "has_value": true,
             "target": "cff.total_cff",
             "transform": "subtotal",
-            "reason": "net cash from financing activities is the cff bucket subtotal"
+            "reason": "net cash used in financing activities is the cff bucket subtotal"
         },
         {
             "id": "104169_cf_33",
@@ -394,7 +394,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "FX effect on cash has no counterpart in the canonical schema"
+            "reason": "exchange rate effect on cash has no counterpart in the canonical schema"
         },
         {
             "id": "104169_cf_34",
@@ -442,7 +442,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "supplemental disclosure heading, no numeric value, no schema counterpart"
         },
         {
             "id": "104169_cf_38",
@@ -454,7 +454,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "supplemental cash disclosure has no counterpart in the canonical schema"
+            "reason": "supplemental disclosure of taxes paid, no counterpart in canonical schema"
         },
         {
             "id": "104169_cf_39",
@@ -466,7 +466,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "supplemental cash disclosure has no counterpart in the canonical schema"
+            "reason": "supplemental disclosure of interest paid, no counterpart in canonical schema"
         }
     ]
 }

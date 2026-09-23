@@ -10,16 +10,16 @@
     "accession": "0001045810-26-000021",
     "primary_document": "nvda-20260125.htm",
     "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
-    "sha256": "73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b",
-    "bytes": 1967816,
+    "sha256": "19e3037bb275642b7a784daabd71ef08a5b870cd443048bcf5b3a600d452ff3d",
+    "bytes": 1967926,
     "statements": {
         "is": {
             "source_html_file": "R3.htm",
             "short_name": "Consolidated Statements of Income",
             "local_file": "0001045810_2026-01-25_10k_is.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R3.htm",
-            "sha256": "09b4d06ac2f8d95f74ddc8ebaa86d29772bb0074610d33fa1cf7a6b05c97f0af",
-            "bytes": 105628,
+            "sha256": "4e3a2c1cfd5328545fe998e6690c8825ffb6a4c23a84920adc4c6308792c41b3",
+            "bytes": 105738,
             "confidence": 0.67,
             "matched_anchors": [
                 "revenue",
@@ -33,8 +33,8 @@
             "short_name": "Consolidated Balance Sheets",
             "local_file": "0001045810_2026-01-25_10k_bs.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R5.htm",
-            "sha256": "304309cb19c0e19df6971cb0475161f5b90d595c5dcca8de517865ed630ea6e2",
-            "bytes": 115883,
+            "sha256": "1d007618246f86ffafa835ee3f3480117ead46e3621067a9893c6b85622132d5",
+            "bytes": 115993,
             "confidence": 1.0,
             "matched_anchors": [
                 "total assets",
@@ -49,8 +49,8 @@
             "short_name": "Consolidated Statements of Cash Flows",
             "local_file": "0001045810_2026-01-25_10k_cf.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/R9.htm",
-            "sha256": "a693ff13a72b24f6e00f0b8c64ad0404735cf995fa7537a019ab49303461ca5d",
-            "bytes": 101853,
+            "sha256": "3fca8e15487386630417abbf9fe70f026c9e1c9c7bd6fd1f1c763766f48ff6d2",
+            "bytes": 101963,
             "confidence": 1.0,
             "matched_anchors": [
                 "operating activities",
@@ -60,5 +60,5 @@
             ]
         }
     },
-    "downloaded_at": "2026-09-18T13:23:17Z"
+    "downloaded_at": "2026-09-23T11:20:34Z"
 }

@@ -32,19 +32,18 @@ For every record, either:
 
 1. Map it to exactly one line item of the canonical schema.
 2. Decide it has no counterpart and mark it unmapped.
-3. Aggregate (sum) it with another record in the destination.
+3. Aggregate it with another record in the destination.
 
 Never guess. A record you cannot map confidently is unmapped — with a reason — not a wrong mapping. Every input id must appear exactly once in your output. No more, no fewer.
 
 Transform is always one of the following, exactly as spelled in the pipeline's schema conventions:
 
-      renamed | reclassified | subtotal | other | computed | aggregated | null
+      renamed | reclassified | subtotal | null
 
 Guidance for choosing (also look at the few-shoots below):
 
 - renamed        — the filing's item with the pipeline's canonical name, in the canonical order.
 - reclassified   — the item is reassigned into a different bucket than its naive reading suggests.
-- other          — any time the row is folded into the bucket's residual "other" line.
 - subtotal       — the row is a total/subtotal of other mapped rows.
 - null           ─ there is no counterpart for this item.
 
@@ -52,10 +51,8 @@ Guidance for choosing (also look at the few-shoots below):
 
 1. Match by accounting concept, never by string similarity. "Total revenue" and "Net sales" may be the same concept; "Net income" and "Net income before tax" are not.
 2. Filer-extension tags (xom:, cisco:, fitb:, ...) could be a signal that the mapping is not the obvious one. Read the label and its neighbours, then choose the line item whose definition covers exactly what this row says.
-3. When two line items both fit, choose the more specific one.
-4. A level-0 subtotal row maps only to a *total/subtotal* line item of one bucket, never to a member line.
-5. Do not use has_value for any decision; it only records that numbers exist in the filing.
-6. Reasons are <20 words essays, concise and specific.
+3. A level-0 subtotal row maps only to a *total/subtotal* line item of one bucket, never to a member line.
+4. Reasons are <20 words essays, concise and specific.
 
 ## Things to be aware of
 

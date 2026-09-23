@@ -10,7 +10,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "1045810_is_02",
@@ -58,7 +58,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "1045810_is_06",
@@ -94,7 +94,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "total operating expenses subtotal has no counterpart in the canonical schema"
+            "reason": "total operating expenses has no counterpart in the canonical schema"
         },
         {
             "id": "1045810_is_09",
@@ -142,7 +142,7 @@
             "has_value": true,
             "target": "is.other_non_op_income_expenses",
             "transform": "renamed",
-            "reason": "other income net is the canonical other_non_op_income_expenses line"
+            "reason": "other income net is the canonical other_non_op line"
         },
         {
             "id": "1045810_is_13",
@@ -154,7 +154,7 @@
             "has_value": true,
             "target": null,
             "transform": null,
-            "reason": "total other income subtotal has no counterpart in the canonical schema"
+            "reason": "total other income net has no counterpart in the canonical schema"
         },
         {
             "id": "1045810_is_14",
@@ -202,7 +202,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "1045810_is_18",
@@ -238,7 +238,7 @@
             "has_value": false,
             "target": null,
             "transform": null,
-            "reason": "section heading with no numeric value or schema counterpart"
+            "reason": "section heading, no numeric value, no schema counterpart"
         },
         {
             "id": "1045810_is_21",
