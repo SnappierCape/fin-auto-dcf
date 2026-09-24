@@ -212,11 +212,12 @@
             "label": "Proceeds from disposal of certain strategic investments",
             "tag": "defref_us-gaap_ProceedsFromSaleOfEquitySecuritiesFvNi",
             "has_value": true,
-            "target": "cfi.proceedes_invest",
+            "target": "cfi.proceeds_invest",
             "transform": "renamed",
             "reason": "proceeds from disposal of strategic investments is the canonical proceedes_invest line"
         },
         {
+            "//comment": "not sure if this is correct",
             "id": "104169_cf_19",
             "stmt": "cf",
             "order": 19,
