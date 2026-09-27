@@ -91,7 +91,7 @@
     "label": "Amortization of intangible assets",
     "tag": "defref_pfe_AmortizationOfIntangibleAssetsNotAssociatedWithSingleFunction",
     "has_value": true,
-    "target": "is.other_op_income_expenses",
+    "target": "is.d_a",
     "transform": "reclassified",
     "reason": "amortization of intangibles has no dedicated slot, falls under other op income/expense"
   },
