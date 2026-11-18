@@ -106,7 +106,7 @@ Requires a local [Ollama](https://ollama.com) instance with at least 64.000 toke
 - [x] **Phase 0** — Foundation: scaffolding, CI, frozen canonical schema, golden fixture set
 - [x] **Phase 1** — Data ingestion (real EDGAR statements)
 - [x] **Phase 2** — LLM reclassification — the **GO/NO-GO gate**
-- [ ] **Phase 3** — LLM Validation against golden set
+- [x] **Phase 3** — LLM Validation against golden set
 - [ ] **Phase 4** — Extension to 10 years of history
 - [ ] **Phase 5** — Parameters estimation & DCF kernel
 - [ ] **Phase 6** — Monte Carlo & fair-value distribution

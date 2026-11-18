@@ -1,0 +1,63 @@
+{
+    "cik": "0000063908",
+    "issuer": "MCDONALDS CORP",
+    "tickers": [
+        "MCD"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-24",
+    "report_date": "2025-12-31",
+    "accession": "0000063908-26-000035",
+    "primary_document": "mcd-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/63908/000006390826000035/mcd-20251231.htm",
+    "sha256": "64e680630d5fe4448db26ff695aaf50189ec23427566f01508d3bf27aa8d8b3e",
+    "bytes": 2182265,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "Consolidated Statement of Income",
+            "local_file": "0000063908_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/63908/000006390826000035/R3.htm",
+            "sha256": "11a154aec839f3551b4e0a8dd9574e1ed767bffde20f4579eacbf63fb4049838",
+            "bytes": 95866,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R7.htm",
+            "short_name": "Consolidated Balance Sheet",
+            "local_file": "0000063908_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/63908/000006390826000035/R7.htm",
+            "sha256": "639062b375e2c3cf303df4877e6c28db06624b8510c6e6351e76fce604c84366",
+            "bytes": 121080,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "shareholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R9.htm",
+            "short_name": "Consolidated Statement of Cash Flows",
+            "local_file": "0000063908_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/63908/000006390826000035/R9.htm",
+            "sha256": "8a3c1f5bbbf2f3613b28a91ddf74074ec4ab61d83e3dfc9758cff033140129e4",
+            "bytes": 92998,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:02:27Z"
+}

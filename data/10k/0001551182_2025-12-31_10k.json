@@ -1,0 +1,60 @@
+{
+    "cik": "0001551182",
+    "issuer": "Eaton Corp plc",
+    "tickers": [
+        "ETN"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-26",
+    "report_date": "2025-12-31",
+    "accession": "0001551182-26-000007",
+    "primary_document": "etn-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/etn-20251231.htm",
+    "sha256": "a1573d23b8049c45b0554f98472165ac5669e178592452780070259db4547428",
+    "bytes": 3119190,
+    "statements": {
+        "is": {
+            "source_html_file": "R3.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF INCOME",
+            "local_file": "0001551182_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/R3.htm",
+            "sha256": "3c89f0f49b34121ef732fd789e1494ca56a82a69ace852f82bf45c25fb92f037",
+            "bytes": 99768,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R5.htm",
+            "short_name": "CONSOLIDATED BALANCE SHEETS",
+            "local_file": "0001551182_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/R5.htm",
+            "sha256": "bce3b6502748c697beb838f56a985fabf8af6acde5cf3762f2f78790d07e6d32",
+            "bytes": 157888,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+            "local_file": "0001551182_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/R7.htm",
+            "sha256": "d3f46ee426cce67a917da3f899f74257891083c909250e3c982db84ad9550846",
+            "bytes": 103829,
+            "confidence": 0.75,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:09:03Z"
+}

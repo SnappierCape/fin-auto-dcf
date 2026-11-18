@@ -1,0 +1,62 @@
+{
+    "cik": "0000855658",
+    "issuer": "LATTICE SEMICONDUCTOR CORP",
+    "tickers": [
+        "LSCC"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-13",
+    "report_date": "2026-01-03",
+    "accession": "0001437749-26-004100",
+    "primary_document": "lscc20260103_10k.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/855658/000143774926004100/lscc20260103_10k.htm",
+    "sha256": "832d0f09973f951e9095c6dda49b95815c92734e49ff4d8742e109b9009c11db",
+    "bytes": 2133544,
+    "statements": {
+        "is": {
+            "source_html_file": "R2.htm",
+            "short_name": "Consolidated Statements of Operations",
+            "local_file": "0000855658_2026-01-03_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/855658/000143774926004100/R2.htm",
+            "sha256": "b82b4c2c03981f9e706c1c82c016ce82ff694e8bb34ad028a38e0176a4dab574",
+            "bytes": 97549,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R4.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0000855658_2026-01-03_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/855658/000143774926004100/R4.htm",
+            "sha256": "c808a64c641e70697800676edad99372ec696d1b71b1cdf2606a58028cd589a5",
+            "bytes": 111758,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R6.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0000855658_2026-01-03_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/855658/000143774926004100/R6.htm",
+            "sha256": "e5bbfea2dfa4f761c506cd988085fa39367f3b1b9ee6d15848c3c0a77ac5f565",
+            "bytes": 99853,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:00:56Z"
+}

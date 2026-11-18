@@ -17,7 +17,13 @@
             "local_file": "0000034088_2025-12-31_10k_is.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R3.htm",
             "sha256": "ef5789191ad08d92ed21c9b5182fc6ef0ea6d2fadd9456a65ceddf11e925f5b2",
-            "bytes": 108857
+            "bytes": 108857,
+            "confidence": 0.5,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "net income"
+            ]
         },
         "bs": {
             "source_html_file": "R5.htm",
@@ -25,7 +31,13 @@
             "local_file": "0000034088_2025-12-31_10k_bs.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R5.htm",
             "sha256": "0b058e18eedb1330440550eb328d08399880905fc499f8be4b5f408af499d14b",
-            "bytes": 139526
+            "bytes": 139526,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity"
+            ]
         },
         "cf": {
             "source_html_file": "R7.htm",
@@ -33,8 +45,15 @@
             "local_file": "0000034088_2025-12-31_10k_cf.htm",
             "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/R7.htm",
             "sha256": "38218774aea79110b2b298a129e151144d7e768b72c2e965c64b8e6cb2d8e66f",
-            "bytes": 104555
+            "bytes": 104555,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
         }
     },
-    "downloaded_at": "2026-08-25T08:30:37Z"
+    "downloaded_at": "2026-09-17T15:05:06Z"
 }

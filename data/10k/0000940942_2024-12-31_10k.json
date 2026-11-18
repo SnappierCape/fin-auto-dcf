@@ -1,0 +1,63 @@
+{
+    "cik": "0000940942",
+    "issuer": "Hub Group, Inc.",
+    "tickers": [
+        "HUBG"
+    ],
+    "form": "10-K",
+    "filing_date": "2025-02-25",
+    "report_date": "2024-12-31",
+    "accession": "0000950170-25-026866",
+    "primary_document": "hubg-20241231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/940942/000095017025026866/hubg-20241231.htm",
+    "sha256": "e99831063aa65f553e5e6bb7ca306168d55800cc173898e19150fec40f7b8454",
+    "bytes": 3691604,
+    "statements": {
+        "is": {
+            "source_html_file": "R4.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF INCOME",
+            "local_file": "0000940942_2024-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/940942/000095017025026866/R4.htm",
+            "sha256": "f504236f97dceeef9100ce00b970e24c82567d427af888aef830ba155e5e154a",
+            "bytes": 96368,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R2.htm",
+            "short_name": "CONSOLIDATED BALANCE SHEETS",
+            "local_file": "0000940942_2024-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/940942/000095017025026866/R2.htm",
+            "sha256": "b080eb23c0421038d9b22ba594353f7f6c72b3eb3aac09b41574e5b4b7ef7699",
+            "bytes": 139315,
+            "confidence": 0.8,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity",
+                "retained earnings"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R7.htm",
+            "short_name": "CONSOLIDATED STATEMENTS OF CASH FLOWS",
+            "local_file": "0000940942_2024-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/940942/000095017025026866/R7.htm",
+            "sha256": "4aa8c10e70d26288e22c9cf147b6b149171d9d73882d21d0bd5d74e875ec58a0",
+            "bytes": 93309,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T14:57:52Z"
+}

@@ -1,0 +1,63 @@
+{
+    "cik": "0001045609",
+    "issuer": "Prologis, Inc.",
+    "tickers": [
+        "PLD",
+        "PLDGP"
+    ],
+    "form": "10-K",
+    "filing_date": "2026-02-13",
+    "report_date": "2025-12-31",
+    "accession": "0001193125-26-051453",
+    "primary_document": "pld-20251231.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312526051453/pld-20251231.htm",
+    "sha256": "bc5ac05737e3384253c1fdd6ff16feccd9769e75fc62b9b279d2e7f86fceaf5b",
+    "bytes": 11507278,
+    "statements": {
+        "is": {
+            "source_html_file": "R4.htm",
+            "short_name": "Consolidated Statements of Income",
+            "local_file": "0001045609_2025-12-31_10k_is.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312526051453/R4.htm",
+            "sha256": "9d5dbc5fc3160b78c15fb079b4ed882454c2c4b90eb4419146228207a0760525",
+            "bytes": 150167,
+            "confidence": 0.67,
+            "matched_anchors": [
+                "revenue",
+                "sales",
+                "operating income",
+                "net income"
+            ]
+        },
+        "bs": {
+            "source_html_file": "R2.htm",
+            "short_name": "Consolidated Balance Sheets",
+            "local_file": "0001045609_2025-12-31_10k_bs.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312526051453/R2.htm",
+            "sha256": "0f9c79d760fc28adc323c3900477eb463c165d973ce8536a97fc6615bdbbe894",
+            "bytes": 211715,
+            "confidence": 0.6,
+            "matched_anchors": [
+                "total assets",
+                "total liabilities",
+                "stockholders' equity"
+            ]
+        },
+        "cf": {
+            "source_html_file": "R8.htm",
+            "short_name": "Consolidated Statements of Cash Flows",
+            "local_file": "0001045609_2025-12-31_10k_cf.htm",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312526051453/R8.htm",
+            "sha256": "929224ae446ad7555920f74484ef4362f461ed15ee91dfc86913931d8bddf204",
+            "bytes": 143012,
+            "confidence": 1.0,
+            "matched_anchors": [
+                "operating activities",
+                "investing activities",
+                "financing activities",
+                "cash and cash equivalents"
+            ]
+        }
+    },
+    "downloaded_at": "2026-09-17T15:03:59Z"
+}
