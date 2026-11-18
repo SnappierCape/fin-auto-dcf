@@ -93,7 +93,7 @@
     "has_value": true,
     "target": "is.d_a",
     "transform": "reclassified",
-    "reason": "amortization of intangibles has no dedicated slot, falls under other op income/expense"
+    "reason": "dedicated d_a slot covers both depreciation and intangible amortization"
   },
   {
     "id": "78003_is_09",
