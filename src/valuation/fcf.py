@@ -1,11 +1,10 @@
 # Copyright 2026 Ulrico Luigi Nava
 # SPDX-License-Identifier: Apache-2.0
-"""Extracts the Free Cash Flow from the reclassified statements.
+"""Calculates the Free Cash Flow from the reclassified statements.
 
 The reclassified statements for the company are stored in /data/reclassified.
-This module is responsible only for extracting the FCF from a selected
-statement, a group of statements, or all the statements present for
-a single company.
+This module is responsible only for extracting the FCF for the selected
+fiscal years for thea chosen company.
 
 Usage:
 
@@ -21,19 +20,23 @@ Output contract:
 The module outputs a single JSON dict in /data/fcf following this structure:
 
     {
-        "y1": 1259862.25,
-        "y2": 147586.87,
-        "y3": 11553388.05,
+        1: 1259862.25,
+        2: 147586.87,
+        3: 11553388.05,
         ...
     }
 
-The output file reports the CIK of the selected company and only contains the
-selected years FCFs (or all of them) in numeric order.
+The output file is named {cik}_fcf.json and only contains the
+FCFs for the selected fiscal years (or all of them) in numeric order.
 
 All the values are in USD units.
 """
 
 from pathlib import Path
+
+import argparse
+import json
+import sys
 
 
 # =============================================================================
@@ -46,9 +49,11 @@ RECLASSIFIED_DIR = ROOT_DIR / "data" / "reclassified"
 
 STATEMENTS = ("is", "bs", "cf")
 
+ENCODING = "utf-8"
+
 
 # =============================================================================
-# Retrieve helpers
+# Extraction helpers
 # =============================================================================
 
 def normalize_cik(cik: str) -> str:
@@ -84,16 +89,112 @@ def statements_present(cik: str, fy_list: list[int]) -> bool:
     
     return True
 
+
 # =============================================================================
 # Calculation helpers
 # =============================================================================
 
-
-def fcf():
+def fcf(cik: str, fy_list: list[int]):
     """Calculates the FCF given the inputs."""
-    pass
+    cik = normalize_cik(cik)
+    
+    if not statements_present(cik=cik, fy_list=fy_list):
+        raise ValueError("Input error.")
+    
+    # Initialize empty dict to hold FCF results.
+    fcf = {}
+    
+    # Extract every FCF input for the selected years.
+    for fy in fy_list:
+        
+        is_path = RECLASSIFIED_DIR / f"{cik}_{fy}_is.json"
+        cf_path = RECLASSIFIED_DIR / f"{cik}_{fy}_cf.json"
+        
+        is_file = json.loads(is_path.read_text(encoding=ENCODING))
+        cf_file = json.loads(cf_path.read_text(encoding=ENCODING))
 
+        # ── Extract the FCF inputs ───────────────────────────────────────────
+        ebit = sum(
+            block["value"]
+            for block in is_file
+            if block["target"] == "is.ebit"
+        )
+        income_tax = sum(
+            block["value"]
+            for block in is_file
+            if block["target"] == "is.income_tax"
+        )
+        ebt = sum(
+            block["value"]
+            for block in is_file
+            if block["target"] == "is.ebt"
+        )
+        d_a = sum(
+            block["value"]
+            for block in cf_file
+            if block["target"] == "cfo.d_a"
+        )
+        capex = sum(
+            block["value"]
+            for block in cf_file
+            if block["target"] == "cfi.capex"
+        )
+        nwc = sum(
+            block["value"]
+            for block in cf_file
+            if block["target"] in (
+                "cfo.nwc_a_p",
+                "cfo.nwc_a_r",
+                "cfo.nwc_inv",
+                "cfo.nwc_tax_payable",
+                "cfo.nwc_dividends_payable",
+                "cfo.nwc_other"
+            )
+        )
+        
+        # ── Calculate FCF ────────────────────────────────────────────────────
+        fcf[fy] = ebit * (1 - (abs(income_tax) / ebt)) + d_a + nwc + capex
+    
+    return fcf
+        
 # =============================================================================
 # Main
 # =============================================================================
-statements_present("34088", [2])
+def main() -> int:
+    """CLI entry point: extract FCFs and write data/fcf/<cik>_fcf.json.
+
+    Standard mode (no fiscal years given) requires all 10 fiscal years and
+    fails loudly if any statement is missing — the 10-year rule.
+    """
+    parser = argparse.ArgumentParser(
+        description="Extract Free Cash Flow from the reclassified statements."
+    )
+    parser.add_argument("cik", help="Company EDGAR CIK, e.g. 104169")
+    parser.add_argument(
+        "fy", nargs="*", type=int, default=None,
+        help="fiscal years to extract (e.g. 1 4 7). Default: all 10 years (1-10)"
+    )
+    args = parser.parse_args()
+
+    # Numeric order, no duplicates, regardless of the order typed on the CLI.
+    fy_list = sorted(set(args.fy)) if args.fy else list(range(1, 11))
+
+    try:
+        cik = normalize_cik(args.cik)
+        result = fcf(cik, fy_list)
+    except ValueError as err:
+        print(f"error: {err}", file=sys.stderr)
+        return 1
+
+    # Output contract: {fy: value} per company, keys in numeric order.
+    output = {fy: value for fy, value in result.items()}
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = OUTPUT_DIR / f"{cik}_fcf.json"
+    out_path.write_text(json.dumps(output, indent=2) + "\n", encoding=ENCODING)
+    print(f"fcf {cik}: {len(output)} fiscal year(s) -> {out_path}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
